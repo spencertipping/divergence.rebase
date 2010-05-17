@@ -297,7 +297,7 @@ var d = (function () {
 
 __rD3fc+Jsh34FKVviooHOz3iJLANG0+BJPeOF2NpylWU
 
-meta::code('main', <<'__bsIhl//blsj6Euz91DSJXeKTqLvQDOhM+PBH1ROFGwU');
+meta::code('main', <<'__ks44WW2E1efSDlwgqaL6mJJU0FQsZ9Cdx2xPjX1gGlo');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -357,28 +357,28 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                    parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, es = [r.syntax()], openers = [], c = s.charAt.bind (s);
                           while (i < l && ($_ = c(i))) {
           escaped = !! (token = '');
-               if                                (/\s/.test ($_))                                                       ++i;
-          else if                  ('([{?:}])'.indexOf ($_) > -1)                                                       expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
-          else if                ($_ === '/' && c(i + 1) === '*')  while (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);
-          else if                ($_ === '/' && c(i + 1) === '/')  while       (($_ = c(++i)) !== '\n' && $_ !== '\r');
-          else if ($_ === '/' &&    expect_re &&  (token = '/'))  {while            (($_ = c(++i)) !== '/' || escaped)  expect_re =  ! (token += $_), escaped = ! escaped && $_ === '\\';
-                                                                   while                      (r.ident[($_ = c(++i))])  token += $_}
-          else if ($_ === '"' && ! (expect_re = ! (token = '"')))  while   (($_ = c(++i)) !== '"' || escaped || ! ++i)  token += $_,                  escaped = ! escaped && $_ === '\\';
-          else if ($_ === "'" && ! (expect_re = ! (token = "'")))  while   (($_ = c(++i)) !== "'" || escaped || ! ++i)  token += $_,                  escaped = ! escaped && $_ === '\\';
-          else if         (expect_re && ops[$_] && (token = 'u'))  while    (ops[$_ = c(i)] && precedence[token + $_])  expect_re = !! (token += $_), ++i;
-          else if                                       (ops[$_])  while    (ops[$_ = c(i)] && precedence[token + $_])  expect_re = !! (token += $_), ++i;
-          else                                                     while                          (r.ident[$_ = c(i)])  expect_re = !! precedence[token += $_], ++i;
+               if                                (/\s/.test ($_))                                                          ++i;
+          else if                  ('([{?:}])'.indexOf ($_) > -1)                                                          expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
+          else if                ($_ === '/' && c(i + 1) === '*')  while    (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);
+          else if                ($_ === '/' && c(i + 1) === '/')  while          (($_ = c(++i)) !== '\n' && $_ !== '\r');
+          else if ($_ === '/' &&    expect_re &&  (token = '/'))  {while               (($_ = c(++i)) !== '/' || escaped)  expect_re =  ! (token += $_), escaped = ! escaped && $_ === '\\';
+                                                                   while                         (r.ident[($_ = c(++i))])  token += $_}
+          else if ($_ === '"' && ! (expect_re = ! (token = '"')))  while      (($_ = c(++i)) !== '"' || escaped || ! ++i)  token += $_,                  escaped = ! escaped && $_ === '\\';
+          else if ($_ === "'" && ! (expect_re = ! (token = "'")))  while      (($_ = c(++i)) !== "'" || escaped || ! ++i)  token += $_,                  escaped = ! escaped && $_ === '\\';
+          else if     (expect_re && r.punct[$_] && (token = 'u'))  while (r.punct[$_ = c(i)] && r.precedence[token + $_])  expect_re = !! (token += $_), ++i;
+          else if                                   (r.punct[$_])  while (r.punct[$_ = c(i)] && r.precedence[token + $_])  expect_re = !! (token += $_), ++i;
+          else                                                     while                             (r.ident[$_ = c(i)])  expect_re = !! r.precedence[token += $_], ++i;
 
           if (! token) continue;
 
                if ('(['.indexOf (token) > -1 && last(es).is_value ()) es[es.length - 1] = last(es).verb (token + '!'), es.push (syntax()), openers.push (token);
-          else if                                      (opens[token]) es.push (syntax().verb(token).value(syntax())), openers.push (token);
+          else if                                    (r.opens[token]) es.push (syntax().verb(token).value(syntax())), openers.push (token);
           else if            (token === ':' && last(openers) === '?') $ = es.pop().top().xs, es[es.length - 1] = last(es).verb (openers.pop ()).values ($);
-          else if                     (token === pair[last(openers)]) $ = es.pop().top(),    es[es.length - 1] = last(es).value ($), openers.pop ();
-          else if                                 (precedence[token]) es[es.length - 1] = last(es).verb  (token);
+          else if                   (token === r.pair[last(openers)]) $ = es.pop().top(),    es[es.length - 1] = last(es).value ($), openers.pop ();
+          else if                               (r.precedence[token]) es[es.length - 1] = last(es).verb  (token);
           else                                                        es[es.length - 1] = last(es).value (token)}
                           return es.pop().top()}})}) ();
-__bsIhl//blsj6Euz91DSJXeKTqLvQDOhM+PBH1ROFGwU
+__ks44WW2E1efSDlwgqaL6mJJU0FQsZ9Cdx2xPjX1gGlo
 
 meta::code('test', <<'__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
