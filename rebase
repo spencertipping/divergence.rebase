@@ -215,7 +215,7 @@ something most people will normally do. In the future there may be a locking mec
 
 __3uM+GRhsAnxE6BFehM2nkGju4J93JQjqONxKbpE0Cdg
 
-meta::code('divergence-lib', <<'__rD3fc+Jsh34FKVviooHOz3iJLANG0+BJPeOF2NpylWU');
+meta::code('divergence-lib', <<'__JbC3IW6lMAU+S188gDndVIdxn+L0oWDO/iPiY10Hd48');
 Divergence core library | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -288,16 +288,16 @@ var d = (function () {
         curry:  function (n) {var f = this.fn(); return n > 1 ? function () {var as = d.arr(arguments); return function () {return f.curry (n - 1).apply (this, as.concat (d.arr (arguments)))}} : f},
         proxy:  function (g) {var f = this.fn(); return g ? function () {return f.apply.apply (f, g.fn() (this, arguments))} : function () {return f.apply (this, arguments)}},
          bind:  function (x) {var f = this.fn(); return d.init (function () {return f.apply (x, arguments)}, {binding: x, original: f})},
-         type:  function  () {var f = function () {}; f = f.ctor.apply (f, arguments); return function () {return c.apply (new f(), arguments)}},
+         type:  function  () {var f = function () {}, c = this.fn(); f = f.ctor.apply (f, arguments); return function () {return c.apply (new f(), arguments)}},
          ctor:  function  () {var f = this.fn(), g = function () {f.apply (this, arguments)}; d.init.apply (this, [g.prototype].concat (d.arr (arguments))); return g},
          tail: '[$_, @_]'.fn(),
           cps:  function (c) {var cc = [this.fn(), [c = (c || d.id).fn().proxy()]]; while (cc[0] !== c) cc = cc[0].fn().apply (this, cc[1]); return c.apply (this, cc[1])}});
 
   return d}) ();
 
-__rD3fc+Jsh34FKVviooHOz3iJLANG0+BJPeOF2NpylWU
+__JbC3IW6lMAU+S188gDndVIdxn+L0oWDO/iPiY10Hd48
 
-meta::code('main', <<'__EKmkM+F8XCWCL1W4xeowewGQkMVLvfNtLetXi+XJyLA');
+meta::code('main', <<'__VWOLC0I5H3RzSHgqpnQ//dWDYbpi+IgN0xZUxG0JHjI');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -321,18 +321,19 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   var set            = '.fold({< $0[$1] = true, $0 >}, {})'.fn(),            last = '$0[$0.length - 1]'.fn(),  qw = '.split(/\\s+/)'.fn(),
         r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null;
 
-  d.init (r, {precedence: {'[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6, '>>':6, '>>>':6, '<':7, '>':7,
-                           '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15, '+=':15, '-=':15, '*=':15, '/=':15,
-                           '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, ':': 16, ',':17, '(':18, '[':18, '{':18},
+  d.init (r, {precedence: {'function':1, '[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6, '>>':6,
+                           '>>>':6, '<':7, '>':7, '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15, '+=':15,
+                           '-=':15, '*=':15, '/=':15, '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, 'case':16, ':': 17, ',':18, 'var':19, 'if':19, 'while':19, 'for':19,
+                           'do':19, 'switch':19, ';':20},
 
-                   right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),            unary: set(qw('u++ u-- u+ u- u! u~ new typeof ( [ {')),
+                   right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),            unary: set(qw('u++ u-- u+ u- u! u~ new typeof var case')),
                    ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),           pair: {'(':')', '[':']', '{':'}', '?':':'},
               sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                            non_sandwiches: set(qw('( [ { ? :')),
                    opens: set(qw('( [ { ?')),                                                                          punct: set(qw('+ - * / % & | ^ ! ~ = < > ? : ; . ,')),
           lvalue_assigns: set(qw('+= -= *= /= %= ^= &= |= <<= >>= >>>=')),                                      translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},
           literal_binary: set(qw('= , . : === !==')),                                                          literal_unary: set(qw('u++ u-- u!')),
 
-                    init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
+                    init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),                                              arity: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn (r),
 
   Incremental parsing.
   As tokens are read from the lexer they are written into a parse tree. Unlike a traditional grammar with productions, this parse tree works in terms of operators and values. Each element in
@@ -348,10 +349,13 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   efficiently. However, rather than backtracking we can reflect the incremental refinement that we see when reading through the code; that is, upon looking at the 'for' we don't know which
   type of for loop it is; but as we read more code we will find out. As long as we start with a general case and lazily refine, the parsing algorithm can remain O(n).
 
-  This type of nonlocality requires multilevel upward communication. Syntax trees, then, can send signals upwards to any nodes which are unresolved. Nodes which make no decisions forward the
-  signals, and nodes which make decisions but are already decided block the signals from further propagation.
+  However, all this being said, my only goal here is to build an accurate operator-precedence structure. So we can ignore any nuances of the structure that make things difficult; in this case,
+  the minimal-effort solution is to replace the first 'in' in a for-loop with a sentinel that takes very low precedence. ('=' isn't a problem, since its precedence is already suitably low and
+  we don't override it in any case.)
 
-                  syntax: function () {},
+                  syntax: '@parent = $0, @op = $1, @xs = $2 || []'.type ({push_value: '@xs.length < $0.arity($1) ? (@xs.push($1), $1) : ("The token " + $1 + " is one too many.").fail()'.fn(),
+                                                                             push_op: '@op ? @push_value($0.syntax($_, $1)) : (@op = $1, $_)'.fn(r),
+                                                                           pop_value: '@xs.length ? @xs.pop() : @parent.pop_value()'.fn()}),
 
   Lexing.
   The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
@@ -381,7 +385,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else if                               (r.precedence[token]) es[es.length - 1] = last(es).verb  (token);
           else                                                        es[es.length - 1] = last(es).value (token)}
                           return es.pop().top()}})}) ();
-__EKmkM+F8XCWCL1W4xeowewGQkMVLvfNtLetXi+XJyLA
+__VWOLC0I5H3RzSHgqpnQ//dWDYbpi+IgN0xZUxG0JHjI
 
 meta::code('test', <<'__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
