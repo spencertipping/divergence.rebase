@@ -1,0 +1,1073 @@
+#!/usr/bin/perl
+
+use File::Temp  'tempfile';
+use Carp        'carp';
+use Digest::SHA 'sha256_base64';
+
+$|++;
+
+my %data;
+my %transient;
+my %externalized_functions;
+my @data_types;
+my @script_args;
+
+sub meta::define_form {
+  my ($namespace, $delegate) = @_;
+  push @data_types, $namespace;
+  *{"meta::${namespace}::implementation"} = $delegate;
+  *{"meta::$namespace"} = sub {
+    my ($name, $value) = @_;
+    chomp $value;
+    $data{"${namespace}::$name"} = $value;
+    $delegate->($name, $value);
+  };
+}
+
+meta::define_form 'meta', sub {
+  my ($name, $value) = @_;
+  eval $value;
+  carp $@ if $@;
+};
+
+meta::meta('bootstrap::initialization', <<'__47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU');
+
+__47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU
+
+meta::meta('datatypes::bootstrap', <<'__guYWiOv4zBmdrlI3k3sW7f/q/xsX38Xvzz0dwwLCIRM');
+meta::define_form 'bootstrap', sub {};
+__guYWiOv4zBmdrlI3k3sW7f/q/xsX38Xvzz0dwwLCIRM
+
+meta::meta('datatypes::code', <<'__VqQsjlm+HucvTRVlIGc8oi++EzzNq+rwy5bhKzunE8A');
+meta::define_form 'code', sub {
+  my ($name, undef) = @_;
+  $externalized_functions{$name} = "code::$name";
+  *{$name} = sub {
+    return edit("code::$name")     unless defined $_[0];
+    return unlit("code::$name")    if $_[0] eq 'unlit';
+    return retrieve("code::$name") if $_[0] eq 'cat';
+  };
+};
+__VqQsjlm+HucvTRVlIGc8oi++EzzNq+rwy5bhKzunE8A
+
+meta::meta('datatypes::data', <<'__j7lFraXGRfKk8ymj2mDJhNbCQMk9FSciN1hdDhzM99U');
+meta::define_form 'data', sub {
+  my ($name, undef) = @_;
+  $externalized_functions{$name} = "data::$name";
+  *{$name} = sub {
+    associate("data::$name", $_[1] || join('', <STDIN>)) if @_ > 0 && $_[0] eq '=';
+    retrieve("data::$name");
+  };
+};
+__j7lFraXGRfKk8ymj2mDJhNbCQMk9FSciN1hdDhzM99U
+
+meta::meta('datatypes::function', <<'__XSIHGGHv0Sh0JBj9KIrP/OzuuB2epyvn9pgtZyWE6t0');
+meta::define_form 'function', sub {
+  my ($name, $value) = @_;
+  $externalized_functions{$name} = "function::$name";
+  *{$name} = eval "sub {\n$value\n}";
+  carp $@ if $@;
+};
+__XSIHGGHv0Sh0JBj9KIrP/OzuuB2epyvn9pgtZyWE6t0
+
+meta::meta('datatypes::internal_function', <<'__heBxmlI7O84FgR+9+ULeiCTWJ4hqd079Z02rZnl9Ong');
+meta::define_form 'internal_function', sub {
+  my ($name, $value) = @_;
+  *{$name} = eval "sub {\n$value\n}";
+  carp $@ if $@;
+};
+__heBxmlI7O84FgR+9+ULeiCTWJ4hqd079Z02rZnl9Ong
+
+meta::meta('datatypes::library', <<'__Uu9nRiHABRn+x19zBWmHpJF8gbfMA5v5MlpNoSE8MqE');
+meta::define_form 'library', sub {
+  my ($name, $value) = @_;
+  eval $value;
+  $externalized_functions{$name} = "library::$name";
+  *{$name} = sub {edit("library::$name")};
+  warn $@ if $@;
+};
+__Uu9nRiHABRn+x19zBWmHpJF8gbfMA5v5MlpNoSE8MqE
+
+meta::meta('datatypes::list-type', <<'__OKczvJ+6wi8VPNFcZ9ohlXjw+ychodWCfcELdli9p+w');
+meta::define_form '_list_type', sub {
+  my ($outer_name, $outer_value) = @_;
+  $externalized_functions{$outer_name} = "_list_type::$outer_name";
+  
+  *{$outer_name} = sub {
+    associate("${outer_value}::$_", '') for @_;
+  };
+
+  meta::define_form $outer_value, sub {
+    my ($name, $value) = @_;
+    $externalized_functions{$name} = "${outer_value}::$name";
+    *{$name} = sub {
+      my ($command, @xs) = @_;
+      my $xs = join "\n", @xs;
+      return grep length, split /\n/, retrieve("${outer_value}::$name")               if $command eq 'items';
+      associate("${outer_value}::$name", retrieve("${outer_value}::$name") . "\n$xs") if $command eq 'add' || $command eq '<<';
+      edit("${outer_value}::$name")                                                   if $command eq 'edit';
+      return retrieve("${outer_value}::$name");
+    };
+  };
+};
+__OKczvJ+6wi8VPNFcZ9ohlXjw+ychodWCfcELdli9p+w
+
+meta::meta('datatypes::note', <<'__TGOjJwmj+QJp1giUQqg2bEaQe8RvqnrFEqyZhIpSC34');
+meta::define_form 'note', sub {
+  my ($name, undef) = @_;
+  $externalized_functions{$name} = "note::$name";
+  *{$name} = sub {edit("note::$name")};
+};
+__TGOjJwmj+QJp1giUQqg2bEaQe8RvqnrFEqyZhIpSC34
+
+meta::meta('datatypes::sh', <<'__+0AR2hHnh+UldymM4MpYnXCE52tHTO+7Lp7HXSsKyTM');
+meta::define_form 'sh', sub {
+  my ($name, $value) = @_;
+  $externalized_functions{$name} = "sh::$name";
+  *{$name} = sub {
+    my ($name, @args) = @_;
+    my $filename      = state_based_filename() . '.tmp';
+    my $new_value     = $value;
+
+    @args || push(@args, $name) && ($name = 'unlit');
+
+    file::write($filename, &$name(@args));
+    $new_value =~ s/__code__/$filename/go;
+    my $output = system($new_value);
+    unlink $filename;
+    $output;
+  };
+};
+__+0AR2hHnh+UldymM4MpYnXCE52tHTO+7Lp7HXSsKyTM
+
+meta::meta('datatypes::vim-highlighter', <<'__vsGBLVDC3S+pX/k/zl5CgXeAQz2QjpBkLgx0CJ4vcn0');
+meta::define_form 'vim_highlighter', \&meta::bootstrap::implementation;
+__vsGBLVDC3S+pX/k/zl5CgXeAQz2QjpBkLgx0CJ4vcn0
+
+meta::meta('internal::runtime', <<'__Nd6Dp1A6nL7yAGeoRfeZETeaW8vnPN8HI9Diqo66vDA');
+meta::define_form 'internal', \&meta::meta::implementation;
+__Nd6Dp1A6nL7yAGeoRfeZETeaW8vnPN8HI9Diqo66vDA
+
+meta::_list_type('list', <<'__ozA5XMClOtEgdzZUav/0c1lAk3Vku/dc4e2tQHgNkTk');
+list
+__ozA5XMClOtEgdzZUav/0c1lAk3Vku/dc4e2tQHgNkTk
+
+meta::bootstrap('initialization', <<'__plktoDCjGQioE48vwfrH0xL3ulcYnTWp+fUvaFwRnnc');
+#!/usr/bin/perl
+
+use File::Temp  'tempfile';
+use Carp        'carp';
+use Digest::SHA 'sha256_base64';
+
+$|++;
+
+my %data;
+my %transient;
+my %externalized_functions;
+my @data_types;
+my @script_args;
+
+sub meta::define_form {
+  my ($namespace, $delegate) = @_;
+  push @data_types, $namespace;
+  *{"meta::${namespace}::implementation"} = $delegate;
+  *{"meta::$namespace"} = sub {
+    my ($name, $value) = @_;
+    chomp $value;
+    $data{"${namespace}::$name"} = $value;
+    $delegate->($name, $value);
+  };
+}
+
+meta::define_form 'meta', sub {
+  my ($name, $value) = @_;
+  eval $value;
+  carp $@ if $@;
+};
+
+__plktoDCjGQioE48vwfrH0xL3ulcYnTWp+fUvaFwRnnc
+
+meta::bootstrap('pod', <<'__3uM+GRhsAnxE6BFehM2nkGju4J93JQjqONxKbpE0Cdg');
+
+=head1 NAME
+
+object - Stateful file-based object
+
+=head1 SYNOPSYS
+
+object [options] action [arguments...]
+
+object shell
+
+=head1 DESCRIPTION
+
+Stateful objects preserve their state between executions by rewriting themselves. Each time the script exits it replaces its contents with its new state. Thus
+state management, for user-writable scripts, is completely transparent.
+
+An object rewrites itself only if its state has changed. This may seem like a dangerous operation, but some checks are put into place to ensure that it goes
+smoothly. First, the object is initially written to a separate file. Next, that file is executed and asked to provide a hashsum of its contents. The original
+object is rewritten only if that hashsum is correct. This ensures that the replacement object is functional and has the right data.
+
+Currently the only known way to lose your data is to edit the serialization-related functions in such a way that they no longer function. However, this is not
+something most people will normally do. In the future there may be a locking mechanism to prevent unintentional edits of these attributes.
+
+=cut
+
+__3uM+GRhsAnxE6BFehM2nkGju4J93JQjqONxKbpE0Cdg
+
+meta::code('main', <<'__tlczvokjOhc30Xv7pJMVAx/DS7sFxjAojdIKqhpsJLI');
+Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
+Licensed under the terms of the MIT source code license
+
+Rebase is a Divergence module that takes operator invocations inside functions and rewrites them to be method invocations. Naturally, new meaning can be associated with these constructs; this
+is done by writing methods for them. For example, invocation of the '+' operator is translated into a call to the 'plus' method. Operator precedence is respected and follows the normal
+JavaScript rules.
+
+Certain constructs cannot be changed. These include assignment variants such as '+='; such variants are always expanded to their full forms (e.g. a += b becomes a = a + b, which becomes a =
+a['+'](b)). Others include the behavior of 'new', dot-lookups, indexed lookups, function calls, and statement-mode constructs such as 'if', 'for', etc. You can write macros that transform
+these things, but they will have strange limitations and might not behave as expected.
+
+Since JavaScript is dynamically typed, it isn't possible to know in advance whether an operator overloading replacement will impact a primitive value. This is one reason for the limitations
+described above. The other thing to realize is that those operators need to get replaced for standard things too -- so Number.prototype, String.prototype, and anything else that depends on
+standard operators will have a bunch of replacement functions that delegate to those operators.
+
+One more thing of importance. Some identifiers are treated specially and sandwiched between operators to form longer operators. They're defined in d.rebase.sandwiches. If an identifier appears
+as a key there (e.g. 'foo'), then it will be sandwiched between binary operators, resulting in the translation of things like 'a + foo + b' as 'a['+foo+'](b)'. This means that you can't use
+'foo' normally anymore, so use this feature carefully.
+
+(function () {
+  var         d       = function     () {return d.eval.apply (this, arguments)},
+             qw       = function    (s) {return s.split (/\s+/)},
+            set       = function   (xs) {return (function ($) {for (var i = 0, l = xs.length; i < l; ++i) $[xs[i]] = true; return $}) ({})},
+           last       = function   (xs) {return xs[xs.length - 1]},
+              s = d.s = function (s, n) {return s === undefined || s === null ? '' : s.to_string ? s.to_string (n) : s.toString ()},
+              $       = null,
+
+     precedence = {'[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6, '>>':6, '>>>':6, '<':7, '>':7,
+                   '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15, '+=':15, '-=':15, '*=':15, '/=':15,
+                   '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, ':': 16, ',':17, '(':18, '[':18, '{':18},
+          right = set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),
+        unaries = set(qw('u++ u-- u+ u- u! u~ new typeof ( [ {')),
+         idents = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),
+     sandwiches = set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),
+ non_sandwiches = set(qw('( [ { ? :')),
+          opens = set(qw('( [ { ?')),
+           pair = {'(':')', '[':']', '{':'}', '?':':'},
+            ops = set(qw('+ - * / % & | ^ ! ~ = < > ? : ; . ,')),
+ lvalue_assigns = set(qw('+= -= *= /= %= ^= &= |= <<= >>= >>>=')),
+ literal_binary = set(qw('= , . : === !==')),
+  literal_unary = set(qw('u++ u-- u!')),
+   translations = {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},
+            max = 20,
+         macros = (function ($) {for (var k in lvalue_assigns) $[k] = (function (k) {return function (xs) {
+                                   return '(' + s(xs[0], prec('=')) + ' = ' + s(syntax(null, k.substr (0, k.length - 1), xs), prec('=')) + ')'}}) (k);
+                                 return $}) ({  '{': function (xs)    {return '{' + s(xs[0], max) + '}'}, '[': function (xs) {return '[' + s(xs[0], max) + ']'},
+                                                '?': function (xs, n) {return s(xs[0], n) + '?' + s(xs[1], max) + ':' + s(xs[2], n)},
+                                              '>$>': function (xs)    {return '(function(' + s(xs[0], max) + '){return ' + s(xs[1], max) + '})'}}),
+
+           prec = function (op) {return precedence[op] || max},
+          arity = function (op) {return ! op || unaries[op] || '[{'.indexOf(op) > -1 ? 1 : op === '?' ? 3 : 2},
+           disp = function (op) {return translations[op] || op},
+
+Incremental parsing.
+  Operator-precedence parsing is done with incremental tree rewrites. Each tree node knows its intended arity (luckily this is fixed for each operator) and its precedence, and it accepts new
+  values and 'verbs', or operators. When a new value is encountered, it is added to the bottom-most tree with room for it.
+
+         syntax = d.syntax = function (p, op, xs) {xs || (xs = []);
+  return {   xs:  xs,
+             op:  function  () {return op},
+          value:  function (x) {return p && xs.length >= arity(op) ? p.value (x) : (xs.push (x), x && x.parent_to && x.parent_to (this) || this)},
+         values:  function ($) {var o = this; for (var i = 0, l = $.length; i < l; ++i) $[i] && (o = o.value ($[i])); return o},
+           verb:  function (x) {return op ? prec(x) - !! right[x] >= prec(op) ?
+                                                       (p || syntax().verb(x).value (this)) : xs.push ($ = syntax (this).verb (x).value (xs.pop ())) && $ : (op = x) && this},
+      parent_to:  function (x) {return p = x, this},
+       is_value:  function  () {return xs.length >= arity(op)},
+       sandwich:  function  () {return xs[0] && xs[1] && ! non_sandwiches[op] ? sandwiches[xs[0]] ? -1 : sandwiches[xs[1]] ? 1 : 0 : 0},
+          shake:  function  () {return xs[0] && xs[1] ? xs[0].sandwich && xs[0].sandwich() ===  1 ? syntax(p, xs[0].op() + xs[0].xs[1] + op, [xs[0].xs[0], xs[1]].concat (xs.slice (2))).shake() :
+                                                        xs[1].sandwich && xs[1].sandwich() === -1 ? syntax(p, op + xs[1].xs[0] + xs[1].op(), [xs[0], xs[1].xs[0]].concat (xs.slice (2))).shake() :
+                                                        syntax(p, op, [xs[0].shake ? xs[0].shake() : xs[0], xs[1].shake ? xs[1].shake() : xs[1]].concat (xs.slice(2))) : this},
+            top:  function  () {return p ? p.top () : this},
+        inspect:  function  () {return '("' + op + '" ' + xs.map (function (x) {return x && x.inspect ? x.inspect() : x}).join (' ') + ')'},
+       toString:  function (n) {return this.to_string (n)},
+      to_string:  function (n) {return ! op && ! xs.length ? '' :
+                                                      ! op ? xs.join(',') :
+                                                macros[op] ? macros[op].call (this, xs, n) :
+                                              prec(op) > n ? '(' + this.to_string(max) + ')' :
+                                        literal_binary[op] ? s(xs[0], prec(op)) + disp(op) + s(xs[1], prec(op)) :
+                                                             s(xs[0], prec(op)) + '["' + disp(op) + '"](' + s(xs[1], max) + ')'}}},
+
+Lexing.
+  The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
+  logic with a expect_re flag that indicates whether the last token processed was an operator (if so, then we're expecting an operand and the next / delineates a regular expression).
+
+  Feeding tokens to the incremental parser tree is generally easy enough; if there aren't any parentheses involved, then we just hand tokens to whichever tree we have and grab the tree that it
+  gives back. (This latter assignment lets us keep track of where we are in the expression tree.) The hard part arises when we do have parenthesized expressions. We need to make sure that
+  these expressions are sealed off from each other; that is, we can't do any sort of rewrites across paren barriers. This means two things:
+
+    | 1. Any time we have a sealed expression, we need to introduce an identity operator to contain it. Otherwise, expressions with sandwiches would become ambiguous; consider, for example,
+         something like x > ($ > y) -- clearly not meant to be interpreted as x >$> y.
+
+    | 2. In the normal course of expression rewrites we need to be careful not to dig through identity-transformed expressions.
+
+  Once we have these guarantees, we can treat parenthesized blocks normally.
+
+  parse = d.parse = function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, es = [syntax()], openers = [], c = s.charAt.bind (s)};
+                        while (i < l && ($_ = c(i))) {
+          escaped = !! (token = '');
+               if                                (/\s/.test ($_))                                                      ++i;
+          else if                  ('([{?:}])'.indexOf ($_) > -1)                                                      expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
+          else if                ($_ === '/' && c(i + 1) === '*') while (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);
+          else if                ($_ === '/' && c(i + 1) === '/') while            (c(++i) !== '\n' && c(i) !== '\r');
+          else if ($_ === '/' &&    expect_re &&  (token = '/'))  while   (($_ = c(++i)) !== '/' || escaped || ! ++i)  expect_re =  ! (token += c(i)), escaped = ! escaped && $_ === '\\';
+          else if ($_ === '"' && ! (expect_re = ! (token = '"'))) while   (($_ = c(++i)) !== '"' || escaped || ! ++i)  token += c(i),                  escaped = ! escaped && $_ === '\\';
+          else if ($_ === "'" && ! (expect_re = ! (token = "'"))) while   (($_ = c(++i)) !== "'" || escaped || ! ++i)  token += c(i),                  escaped = ! escaped && $_ === '\\';
+          else if         (expect_re && ops[$_] && (token = 'u')) while    (ops[$_ = c(i)] && precedence[token + $_])  expect_re = !! (token += $_), ++i;
+          else if                                       (ops[$_]) while    (ops[$_ = c(i)] && precedence[token + $_])  expect_re = !! (token += $_), ++i;
+          else                                                    while                           (idents[$_ = c(i)])  expect_re = !! precedence[token += $_], ++i;
+
+          if (! token) continue;
+
+               if ('(['.indexOf (token) > -1 && last(es).is_value ()) es[es.length - 1] = last(es).verb (token + '!'), es.push (syntax()), openers.push (token);
+          else if                                      (opens[token]) es.push (syntax().verb(token).value(syntax())), openers.push (token);
+          else if            (token === ':' && last(openers) === '?') $ = es.pop().top().xs, es[es.length - 1] = last(es).verb (openers.pop ()).values ($);
+          else if                     (token === pair[last(openers)]) $ = es.pop().top(),    es[es.length - 1] = last(es).value ($), openers.pop ();
+          else if                                 (precedence[token]) es[es.length - 1] = last(es).verb  (token);
+          else                                                        es[es.length - 1] = last(es).value (token);
+                        }
+                        return es.pop().top()};
+
+  (d.extend = function  (o, $) {for (var k in $) $.hasOwnProperty (k) && (o[k] = $[k]); return o}) (d,
+             {sandwich: function     () {for (var i = 0, l = arguments.length; i < l; ++i) sandwiches[arguments[i]] = true; return d},
+                 infix: function (s, f) {macros[s] = f; return d},
+                  eval: function    (x) {return eval (d.parse (x).to_string (0))},
+            prototypes: {Number: {zero: 0, '+': function (y) {return this + y}, '-': function (y) {return this - y}}}});
+
+  for (var k in d.prototypes) d.extend (d.prototypes[k].zero.constructor.prototype, d.prototypes[k]);
+
+  return d}) ();
+__tlczvokjOhc30Xv7pJMVAx/DS7sFxjAojdIKqhpsJLI
+
+meta::code('test', <<'__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8');
+Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
+Licensed under the terms of the MIT source code license
+
+:: get divergence-lib
+:: get main
+:: get test-utils
+
+Parse tests.
+
+  test ('foo.bar.bif.baz');
+  test ('foo . bar . bif . baz');
+  test ('foo + bar * bif');
+  test ('foo * bar + bif');
+
+  test ('100 += 200 * 300');
+  test ('foo += bar * bif');
+  test ('foo + -5');
+
+  test ('x >$> (x + 1)');
+  test ('x >$>$> (x + 1)');
+
+  test ('(foo << bar) >>$- (x >$> x + 1)');
+
+  test ('[1, 2, 3] * (x >$> x + 1)');
+  test ('[1, 2, 3] * (x >$> x) + 1');
+
+  test ('x + (() >$> y + 5)');
+  test ('x + ((y, z) >$> y + 5)');
+
+  test ('x +$>> y');
+
+  test ('foo ? bar + bok : bif');
+  test ('foo ? bar ? bif : baz : bok');
+
+  test ('foo + (bar == bif) * (baz === bok)');
+
+  test ('foo () () () ()');
+
+  test ('typeof new new new new foo ()');
+
+  test ('foo instanceof bar');
+  test ('foo in bar');
+
+  test ('foo >$* (x + bar >>$>> baz)');
+  test ('foo >>$- bar');
+  test ('foo > $ * bar >> -baz');
+
+  test ('foo + bar(bif)');
+  test ('foo() + bar()');
+
+  test ('foo = bar = baz');
+
+  test ('foo(bif)');
+  test ('foo // bif\n(bar)');
+  test ('foo /* bar */ (bif)');
+  test ('foo("bar + bif")');
+  test ('foo("bar\\" + bif\\"")');
+  test ('foo(/bar + bif/)');
+  test ('foo(\'bar + bif\')');
+  test ('{foo: "bar", bif: "baz"}');
+  test ('{foo: "bar" ? "bif" : "baz", bar: "bif" || "baz"}');
+  test ('[foo, bar, bif, baz]');
+__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8
+
+meta::code('test-utils', <<'__0gq0joB9agsAIRLVGmvu4gqsIlTHY1DayHRb4DOA9gY');
+Unit test utilities.
+
+  var assert       = function (x, msg) {if (! x) throw new Error ("Assertion failed: " + msg)};
+  var assert_equal = function (x, y, msg) {x === y || assert (x === y, msg + ' -- ' + x.toString () + ' !== ' + y.toString ())};
+
+  var trace        = function (x) {print (x); return x};
+  var test         = function (s) {print (s + '  =>  ' + d.parse (s).inspect (20))};
+__0gq0joB9agsAIRLVGmvu4gqsIlTHY1DayHRb4DOA9gY
+
+meta::data('default-action', <<'__zmNcTqv/Xk9W26j7HjnKI1UwqitrGFM+7xrzhiAWxXc');
+shell
+__zmNcTqv/Xk9W26j7HjnKI1UwqitrGFM+7xrzhiAWxXc
+
+meta::data('meta-associations', <<'__PRn3E4sEYBafwIXKC61VRabCemMeSeRn2H7z3wLgOo4');
+^function:: .pl
+^internal_function:: .pl
+^meta:: .pl
+^bootstrap:: .pl
+^code:: .ljs
+^vim_highlighter:: .vim
+__PRn3E4sEYBafwIXKC61VRabCemMeSeRn2H7z3wLgOo4
+
+meta::data('name', <<'__pm6wu5BHci+ktlZkmXzt48+j8ps+NIXw7Y3KkcSL9Mk');
+rebase
+__pm6wu5BHci+ktlZkmXzt48+j8ps+NIXw7Y3KkcSL9Mk
+
+meta::function('add-to', <<'__KBgra0vG1gIsUI8CCVf4ZEdCatZDCdVO6HuUx+jOJ9Q');
+my ($filename) = @_;
+my @members = grep /^implementation::/, keys %data;
+
+for (@members) {
+  my $destination_name = basename($_);
+  open my($handle), "| $filename import $destination_name" or messages::error("Attribute $_ could not be written.");
+  print $handle retrieve($_);
+  close $handle;
+}
+__KBgra0vG1gIsUI8CCVf4ZEdCatZDCdVO6HuUx+jOJ9Q
+
+meta::function('attributes', <<'__SHSGXpl5WufcHc7hGxs0XPxlKSgo0XQ752HpjI4rgRg');
+grep /^attribute::/, sort keys %data;
+__SHSGXpl5WufcHc7hGxs0XPxlKSgo0XQ752HpjI4rgRg
+
+meta::function('cat', <<'__h2PeSpk/pPmrzLRTTofdLTbhj06IWUw5WWke6ggUsdk');
+my ($name) = @_;
+$data{$name};
+__h2PeSpk/pPmrzLRTTofdLTbhj06IWUw5WWke6ggUsdk
+
+meta::function('clone', <<'__qP6xPZE75s9g0XJIiC6FGw0vnj2j0glUzsAHxyA3lvY');
+for (@_) {
+  if ($_) {
+    eval {
+      file::write($_, serialize(), noclobber => 1);
+      chmod(0700, $_);
+      print "File $_ cloned successfully.\n";
+    };
+
+    print "$@\n" if $@;
+  }
+}
+__qP6xPZE75s9g0XJIiC6FGw0vnj2j0glUzsAHxyA3lvY
+
+meta::function('code', <<'__NBNecoJ9JVwyGbA+8LrNYjQKQyQOxdFAkjgZ4ueT5QA');
+join "\n\n", map preprocess(retrieve("code::$_")), @_;
+__NBNecoJ9JVwyGbA+8LrNYjQKQyQOxdFAkjgZ4ueT5QA
+
+meta::function('compile', <<'__yB2IFRWcddyOs6Zpx1S36B4+ZKVvVSa1mnnZE/DD6n0');
+file::write('divergence.rebase.js', unlit('main'));
+__yB2IFRWcddyOs6Zpx1S36B4+ZKVvVSa1mnnZE/DD6n0
+
+meta::function('cp', <<'__yn1SQkcEk6o+gnuCy3QGVFtQb2piaCoUdJPGUkLjpD4');
+my ($from, $to) = @_;
+$data{$to} = $data{$from} if $data{$from};
+messages::error("No such attribute $from") unless $data{$from};
+$data{$from};
+__yn1SQkcEk6o+gnuCy3QGVFtQb2piaCoUdJPGUkLjpD4
+
+meta::function('create', <<'__YDNTuzkJSNUIk4tbdwxep6/rT8uGnceIj7rljM9gusc');
+my ($name, $value) = @_;
+messages::error("Attribute $name already exists.") if grep {$_ eq $name} keys %data;
+if ($value) {
+  associate($name, $value);
+} else {
+  associate($name,'');
+  edit ($name);
+}
+__YDNTuzkJSNUIk4tbdwxep6/rT8uGnceIj7rljM9gusc
+
+meta::function('edit', <<'__rAkSOSll0evjt/D0qmnz2M++ACqz6cPtN8TLTHdQUJE');
+my ($name, %options) = @_;
+
+my $meta_extension = join '', grep {
+  my $s = $_;
+  $s =~ s/\s.*$//;
+  $name =~ /$s/
+} split /\n/, &{'meta-associations'}();
+
+$meta_extension =~ s/^.*\s//;
+chomp $meta_extension;
+
+messages::error("Attribute $name does not exist.") unless grep {$_ eq $name} keys %data;
+associate($name, invoke_editor_on($data{$name} || "# Attribute $name", %options, extension => $meta_extension),
+          execute => $name !~ /^internal::/ && $name !~ /^bootstrap::/);
+delete $data{$name} if length($data{$name}) == 0;
+
+save();
+__rAkSOSll0evjt/D0qmnz2M++ACqz6cPtN8TLTHdQUJE
+
+meta::function('exists', <<'__bxU1sDtIh3+P1x0HuuY0f7sKHr9qNZUEl64m2fvwmDk');
+my $name = shift;
+grep {$_ eq $name} keys %data;
+__bxU1sDtIh3+P1x0HuuY0f7sKHr9qNZUEl64m2fvwmDk
+
+meta::function('export', <<'__I4eRG7HtLDZhFgrlr0QDrQO5MRwJYGFlotQsWQIE/d8');
+# Exports data into a text file.
+#   export attr1 attr2 attr3 ... file.txt
+
+my $name = pop @_;
+my @attributes = @_;
+
+if (@attributes) {
+  my $file = join "\n", map {cat($_)} @attributes;
+  file::write ($name, $file);
+} else {
+  messages::error ("Not enough arguments");
+}
+__I4eRG7HtLDZhFgrlr0QDrQO5MRwJYGFlotQsWQIE/d8
+
+meta::function('grab', <<'__sXs1aeJVBERH6nWE7ZpWiIO5Cg7fSBWcoscDg1DHzD8');
+my ($filename, @attribute_names) = @_;
+associate("implementation::$_", `$filename cat $_`) for @attribute_names;
+__sXs1aeJVBERH6nWE7ZpWiIO5Cg7fSBWcoscDg1DHzD8
+
+meta::function('import', <<'__7f1Q36AcIJ8/OaaYPGUq10PPFTKnEF0CMxS56DRsjKk');
+my $name  = pop @_;
+my @files = @_;
+
+if (@files) {
+  my $files = join "", map {file::read ($_)} @files;
+  associate ($name, $files); 
+}
+else {
+  associate($name, join('', <STDIN>));
+}
+__7f1Q36AcIJ8/OaaYPGUq10PPFTKnEF0CMxS56DRsjKk
+
+meta::function('listing', <<'__ISxcI25BrOnRRxDUQm5UL5wWzHJxL/OY8QdSUdnRJoE');
+my ($profile, $line, $context) = @_;
+$line    ||= 1;
+$context ||= 4;
+
+my $result = '';
+my @lines  = split /\n/, unlit($profile);
+for my $l ($line - $context .. $line + $context) {
+  next if $l <= 0;
+  last if $l >  @lines;
+  $result .= sprintf "\033[1;34m%6d\033[0;0m: %s%s%s\n", $l, $l == $line ? "\033[1;32m" : '', $lines[$l - 1], $l == $line ? "\033[0;0m" : '';
+}
+
+$result;
+__ISxcI25BrOnRRxDUQm5UL5wWzHJxL/OY8QdSUdnRJoE
+
+meta::function('load-dependencies', <<'__oYAWdUSIg7K9xPssNpQhu7nUGr94qBGg5QJpTDAA3sA');
+my $errors = '';
+for (grep length, split /\n/, &{'dependencies'}()) {
+  terminal::message('loader', "Running integration test checks on $_...");
+  my $output = `$_ :check`;
+  chomp $output;
+  $errors .= $output ? "module $_\n$output\n" : '';
+}
+
+return terminal::message('error', "dependency loading failed:\n$errors") if $errors;
+associate('code::cached-dependencies', join('', map `$_ :export`, grep length, split /\n/, &{'dependencies'}()));
+terminal::message('loader', "imported dependencies");
+__oYAWdUSIg7K9xPssNpQhu7nUGr94qBGg5QJpTDAA3sA
+
+meta::function('lock', <<'__pqf/HijyN91BWpnS+uWYip/mFhHhcd+M9/YdlYsvv9Y');
+my (undef, undef, $mode) = stat $0;
+chmod $mode & 0555, $0;
+__pqf/HijyN91BWpnS+uWYip/mFhHhcd+M9/YdlYsvv9Y
+
+meta::function('ls', <<'__OlQOgKhp6VUThx34wxmM3MFkwsHfR/c8dqvu07z059E');
+my $criteria = join '|', @_;
+my @lines = grep /$criteria/, sort keys %externalized_functions;
+my $length = 0;
+$length >= length($_) or $length = length($_) for @lines;
+
+my @new_lines = map($_ . ' ' x ($length + 2 - length($_)) . $externalized_functions{$_}, @lines);
+join("\n", sort @new_lines);
+__OlQOgKhp6VUThx34wxmM3MFkwsHfR/c8dqvu07z059E
+
+meta::function('ls-a', <<'__S5EydJRu+YIfcFmTMz1ZHX0cANJq32bU5JnYCe1tWdk');
+my $criteria = join '|', @_;
+my @lines    = grep(/$criteria/, sort keys %data);
+my $length   = 0;
+
+my %inverses;
+$inverses{$externalized_functions{$_}} = $_ for keys %externalized_functions;
+
+$length >= length($_) or $length = length($_) for @lines;
+my @new_lines = map($_ . ' ' x ($length + 2 - length($_)) . ($inverses{$_} || ''), @lines);
+join "\n", @new_lines;
+__S5EydJRu+YIfcFmTMz1ZHX0cANJq32bU5JnYCe1tWdk
+
+meta::function('mv', <<'__ijyNZ8r34FVK0Ki9/Q0Irx5k9U0pZ+/frrdlu+qkEP4');
+my ($from, $to) = @_;
+messages::error("The '$from' attribute does not exist.") unless grep $from, keys %data;
+associate($to, retrieve($from));
+rm($from);
+__ijyNZ8r34FVK0Ki9/Q0Irx5k9U0pZ+/frrdlu+qkEP4
+
+meta::function('perl', <<'__Ojd593Fa9fx1Yx2XuPzK6WTUyxO70Nbmlbl9YRodUWA');
+my $result = eval($_[0]);
+$@ ? $@ : $result;
+__Ojd593Fa9fx1Yx2XuPzK6WTUyxO70Nbmlbl9YRodUWA
+
+meta::function('pop-state', <<'__eqnCLsMapvq2sYSx82KCxh25zmff+JIXFMYUan2kGKM');
+%data = %{pop @{$transient{'states'}}} if @{$transient{'states'}};
+reload();
+__eqnCLsMapvq2sYSx82KCxh25zmff+JIXFMYUan2kGKM
+
+meta::function('preprocess', <<'__SP+M4pf8VRk5hJv0AVOHi8DdG8vAj6ClENKjab8Vbg8');
+my ($document) = @_;
+my %commands = (get => sub {"\n" . code(split /\s+/, $_[0]) . "\n"});
+join "\n", map {m/^\s*::\s*(\w+)\s(.*)$/o && defined $commands{$1} ? $commands{$1}($2, $_) : $_} split /\n/, $document;
+__SP+M4pf8VRk5hJv0AVOHi8DdG8vAj6ClENKjab8Vbg8
+
+meta::function('pull', <<'__ZU6uOu7dBdjjoNdEL/U7yrjicOQR5OLFQAacjrKqSCg');
+my ($class_name) = @_;
+my @attributes = grep /^implementation::/, split /\n/, `$class_name ls-a`;
+
+for (@attributes) {
+  s/^\s+//;
+  s/\s+$//;
+  print STDERR "Adding $_\n";
+  associate(basename($_), `$class_name cat "$_"`);
+}
+__ZU6uOu7dBdjjoNdEL/U7yrjicOQR5OLFQAacjrKqSCg
+
+meta::function('push-state', <<'__ik0ofu7R8gHAKSmMjek79V+yfgdjdK5Jmtwf7h8SpJk');
+push @{$transient{'states'} = $transient{'states'} || []}, {%data};
+my $state_count = scalar @{$transient{'states'}};
+"There are now $state_count states on the stack.";
+__ik0ofu7R8gHAKSmMjek79V+yfgdjdK5Jmtwf7h8SpJk
+
+meta::function('reload', <<'__GwQjnnfuj0xQlervDJ9EVWzdmdz+XL3Gq0i9rdejvzM');
+execute($_) for (grep {! (/^internal::/ || /^bootstrap::/)} keys %data);
+__GwQjnnfuj0xQlervDJ9EVWzdmdz+XL3Gq0i9rdejvzM
+
+meta::function('repl', <<'__w4q9MpioWHnb4gpiwN2R0N69hoQm0kvxzUBS6knEULg');
+my ($name, @options) = @_;
+
+use Term::ReadLine;
+
+my $term = new Term::ReadLine "$0 repl for $name";
+$term->ornaments(0);
+my $OUT    = $term->OUT || \*STDOUT;
+my $prompt = &{'name'}() . "/$name> ";
+
+terminal::message('repl', 'initializing symbol table');
+types::clear_symbols();
+types::load_symbols($name) if $name;
+types::initialize_symbols();
+types::initialize_debugging_symbols() if grep /^debug$/, @options;
+
+terminal::message('repl', 'running session');
+run('cached-dependencies') unless grep /^nodeps$/, @options;
+run($name) if $name;
+
+terminal::message('repl', 'ready');
+while (defined ($_ = $term->readline($prompt))) {
+  my $result = eval {reader::read_form($_)->eval()->serialize()};
+  $@ ? chomp $@ && terminal::message('error', $@) : terminal::message('result', $result);
+}
+
+print "\n";
+if ($name) {
+  terminal::message('repl', 'storing symbol table');
+  types::store_symbols($name);
+}
+
+terminal::message('repl', 'exiting');
+__w4q9MpioWHnb4gpiwN2R0N69hoQm0kvxzUBS6knEULg
+
+meta::function('rm', <<'__7BVECTVo/mcT5+edC70WPc6S1xCbzAeyUCfCjkKWlww');
+for my $to_be_deleted (@_) {
+  messages::warning("$to_be_deleted does not exist") unless grep {$_ eq $to_be_deleted} keys %data;
+}
+
+delete @data{@_};
+__7BVECTVo/mcT5+edC70WPc6S1xCbzAeyUCfCjkKWlww
+
+meta::function('run', <<'__2RluS4s8uRjHD6Vtfi/a01P+Bo8jgpcLILqPCD4icpU');
+shell::load_interactively(@_);
+__2RluS4s8uRjHD6Vtfi/a01P+Bo8jgpcLILqPCD4icpU
+
+meta::function('run-file', <<'__WceprRaNezbwObGfB9h6pwi0Ly281gdWz8CLtXL1ehY');
+shell::initialize_symbol_table();
+&{':main'}();
+shell::load_from_file(@_);
+__WceprRaNezbwObGfB9h6pwi0Ly281gdWz8CLtXL1ehY
+
+meta::function('save', <<'__uWXGnrQr+A7Cl0zcsDuiokbWAw1XdMdjeq9gDcTMJIw');
+my $serialized_data = serialize();
+my $final_state     = state();
+
+my (undef, $temporary_filename) = tempfile("$0." . 'X' x 32, OPEN => 0);
+file::write($temporary_filename, $serialized_data);
+chmod 0700, $temporary_filename;
+
+my $observed_state = `perl $temporary_filename state`;
+chomp $observed_state;
+if ($observed_state ne $final_state) {
+  messages::error("The state of this object ($final_state) is inconsistent with the state of $temporary_filename ($observed_state).\n" .
+                  "$0 has not been updated.");
+} else {
+  eval {file::write($0, $serialized_data)};
+  warn $@ if $@;
+  my $observed_self_state = `perl $0 state`;
+  chomp $observed_self_state;
+  unlink $temporary_filename if $observed_self_state eq $final_state;
+}
+__uWXGnrQr+A7Cl0zcsDuiokbWAw1XdMdjeq9gDcTMJIw
+
+meta::function('serialize', <<'__KGiI48MlyG6RAVW5QYRK8y97y8tx+jeAwPlY5eDtMTw');
+my @keys_without_internals = grep(!/^internal::/, sort keys %data);
+join "\n", $data{'bootstrap::initialization'},
+           (grep {$_} (map {serialize::single(@_)} grep(/^meta::/,  @keys_without_internals),
+                                                   grep(!/^meta::/, @keys_without_internals),
+                                                   grep(/^internal::/, sort keys %data))),
+           "__END__";
+__KGiI48MlyG6RAVW5QYRK8y97y8tx+jeAwPlY5eDtMTw
+
+meta::function('shell', <<'__mzNaDzdnJhpI/Va1/nY8LTN9BQtfr77CFKIeK2GdIC0');
+use Term::ReadLine;
+
+my $term = new Term::ReadLine "$0 shell";
+$term->ornaments(0);
+my $prompt = &{'name'}() . '$ ';
+my $OUT = $term->OUT || \*STDOUT;
+
+$term->Attribs->{attempted_completion_function} = \&complete;
+
+while (defined ($_ = $term->readline($prompt))) {
+  my $command_line = $_;
+  my @args = grep length, split /\s+|("[^"\\]*(?:\\.)?")/o;
+  my $function_name = shift @args;
+
+  return if $function_name eq 'exit';
+
+  s/^"(.*)"$/\1/o, s/\\\\"/"/go for @args;
+
+  if ($function_name) {
+    if ($externalized_functions{$function_name}) {
+      my $result = eval {&{$function_name}(@args)};
+      messages::warning($@) if $@;
+      chomp $result;
+      print $OUT $result, "\n" unless $@;
+    } else {
+      messages::warning("Command not found: $function_name");
+    }
+  }
+
+  for my $watch (@{$transient{'watch_list'}}) {
+    print $OUT eval($watch), "\n";
+    print $OUT "Error evaluating watched expression $watch: $@\n" if $@;
+  }
+
+  $prompt = &{'name'}() . '$ ';
+}
+__mzNaDzdnJhpI/Va1/nY8LTN9BQtfr77CFKIeK2GdIC0
+
+meta::function('size', <<'__lDGr6yVnDwcDWLkJH16MNukltjG2ypBSk/ktYb80h80');
+length(serialize());
+__lDGr6yVnDwcDWLkJH16MNukltjG2ypBSk/ktYb80h80
+
+meta::function('snapshot', <<'__qjqsCy4CTt88dIi7IWM+Varpb3GcHsYrFTxW7EwpLW0');
+my ($name) = @_;
+file::write(my $finalname = state_based_filename($name), serialize(), noclobber => 1);
+chmod 0700, $finalname;
+__qjqsCy4CTt88dIi7IWM+Varpb3GcHsYrFTxW7EwpLW0
+
+meta::function('state', <<'__1S8nzRSMoxJU/VEv2rx/NrAt1iRgXQ9ugxjUP3IFunI');
+sha256_base64 serialize();
+__1S8nzRSMoxJU/VEv2rx/NrAt1iRgXQ9ugxjUP3IFunI
+
+meta::function('unlit', <<'__4zPHXwlGFrTN0OAvy0k5UFlrLmXg6SUA8aJM9GyFDko');
+join "\n\n", map {m/^\s*[^0-9a-z_()\[\]{}!\/ ]/o ? s/^/\/\/ /omg : s/^(\s*)!/\1 /o; $_} split /\n\n+/, code(@_);
+__4zPHXwlGFrTN0OAvy0k5UFlrLmXg6SUA8aJM9GyFDko
+
+meta::function('unlock', <<'__08PohCY8fcNe+pWCO6ic6XOOKv48NkrxpNMmTOUIFdA');
+my (undef, undef, $mode) = stat $0;
+chmod $mode | 0200, $0;
+__08PohCY8fcNe+pWCO6ic6XOOKv48NkrxpNMmTOUIFdA
+
+meta::function('update-from', <<'__jJ2tfSk/Quz8/1PiYxIwQjBRt/hYg51iJhAdxcdaHkM');
+# Upgrade all attributes that aren't customized. In this case, we want everything except for configuration::, code::, and attribute::.
+return "That is a really bad idea." if $0 =~ /\.\/(.*)/ && $_[0] eq $1 || $_[0] eq $0;
+
+my @attributes = map {s/\s+.*//; $_} split(/\n/, qx|$_[0] ls-a|);
+
+terminal::message('info', 'Replicating state...');
+&{'push-state'}();
+terminal::message('info', 'Updating meta attributes...');
+for my $attribute (grep length && /^meta::/, @attributes) {
+  associate($attribute, join('', qx|$_[0] cat $attribute|));
+  reload();
+  print '.';
+}
+
+print "\n";
+terminal::message('info', 'Updating non-meta attributes...');
+for my $attribute (grep length && ! (/^configuration::/ || /^code::/ || /^attribute::/ || /^function::pop-state$/ ||
+                                     /^list::/ || /^issue::/ || /^data::/ || /^meta::datatypes/), @attributes) {
+  associate($attribute, join('', qx|$_[0] cat $attribute|));
+  reload();     # Necessary to activate new datatypes.
+  print '.';
+}
+
+print "\n";
+terminal::message('info', 'Reloading new configuration');
+reload();
+terminal::message('info', "Imported from $_[0]. Run pop-state to undo this change.");
+__jJ2tfSk/Quz8/1PiYxIwQjBRt/hYg51iJhAdxcdaHkM
+
+meta::function('usage', <<'__oHVev4RtZlF/82SSE87y4Bf7ran2afn/HDtukOQBf9I');
+<<"EOD" . join '  ', split /\n/, ls ();
+Usage: $0 [options] action [arguments]
+Defined actions:
+EOD
+__oHVev4RtZlF/82SSE87y4Bf7ran2afn/HDtukOQBf9I
+
+meta::function('vim', <<'__1EcCMR8Tks8HBoOg+zAKJ4LlrRIY8nvLs4M1VTr2Zec');
+# Installs VIM highlighters.
+file::write("$ENV{'HOME'}/.vim/syntax/$_.vim", retrieve("vim_highlighter::$_")) for map {s/^vim_highlighter:://o; $_} grep /^vim_highlighter::/, sort keys %data;
+__1EcCMR8Tks8HBoOg+zAKJ4LlrRIY8nvLs4M1VTr2Zec
+
+meta::internal_function('associate', <<'__D8BKmEFp/adiPPqPnXyMOzlsBMCmuZi62UpJWdoFg/0');
+my ($name, $value, %options) = @_;
+my $namespace = namespace($name);
+messages::error("Namespace $namespace does not exist") unless grep {$_ eq $namespace} @data_types;
+$data{$name} = $value;
+execute($name) if $options{'execute'};
+__D8BKmEFp/adiPPqPnXyMOzlsBMCmuZi62UpJWdoFg/0
+
+meta::internal_function('basename', <<'__T4JEqOUYjMzssdVwV/rdgAhvr0Vz9TQUo0noTdeBLxw');
+my ($name) = @_;
+$name =~ s/^[^:]*:://;
+$name;
+__T4JEqOUYjMzssdVwV/rdgAhvr0Vz9TQUo0noTdeBLxw
+
+meta::internal_function('complete', <<'__lhlD80z2kvEUEeHPqLFw6JE8xUdXr6J5Q1gXHg4beHg');
+my @functions  = sort keys %externalized_functions;
+my @attributes = sort keys %data;
+
+sub match {
+  my ($text, @options) = @_;
+  my @matches = sort grep /^$text/, @options;
+
+  if    (@matches == 0) {return undef;}
+  elsif (@matches == 1) {return $matches [0];}
+  elsif (@matches >  1) {return ((longest ($matches [0], $matches [@matches - 1])), @matches);}
+}
+
+sub longest {
+  my ($s1, $s2) = @_; 
+  return substr ($s1, 0, length $1) if ($s1 ^ $s2) =~ /^(\0*)/;
+  return ''; 
+}
+
+# This is another way to implement autocompletion.
+#
+# my $attribs = $term->Attribs;
+# $attribs->{completion_entry_function} = $attribs->{list_completion_function};
+# $attribs->{completion_word} = [sort keys %data, sort keys %externalized_functions];
+
+my ($text, $line) = @_;
+if ($line =~ / /) {
+  # Start matching attribute names.
+  match ($text, @attributes);
+} else {
+  # Start of line, so it's a function.
+  match ($text, @functions);
+}
+__lhlD80z2kvEUEeHPqLFw6JE8xUdXr6J5Q1gXHg4beHg
+
+meta::internal_function('execute', <<'__Ge94WTpmLuqsMDappj5G/G2BKILAE0GjeCqAeHLW6fQ');
+my ($name, %options) = @_;
+my $namespace = namespace($name);
+eval {&{"meta::$namespace"}(basename($name), retrieve($name))};
+warn $@ if $@ && $options{'carp'};
+__Ge94WTpmLuqsMDappj5G/G2BKILAE0GjeCqAeHLW6fQ
+
+meta::internal_function('file::read', <<'__ZxBqZsMZZRuLMQp8Sy//ZsoAvriDebjYLGAX7p7AxXg');
+my $name = shift;
+open my($handle), "<", $name;
+my $result = join "", <$handle>;
+close $handle;
+$result;
+__ZxBqZsMZZRuLMQp8Sy//ZsoAvriDebjYLGAX7p7AxXg
+
+meta::internal_function('file::write', <<'__+NhpMabvNL+hHZaTZwBoFx2IFa79cjOZwGxEXX+xG0o');
+my ($name, $contents, %options) = @_;
+die "Choosing not to overwrite file $name" if $options{'noclobber'} && -f $name;
+open my($handle), ">", $name or die "Can't open $name for writing";
+print $handle $contents;
+close $handle;
+__+NhpMabvNL+hHZaTZwBoFx2IFa79cjOZwGxEXX+xG0o
+
+meta::internal_function('invoke_editor_on', <<'__97Lgs5+qfyAu92Vv5GCVVSYgUgFhOKYkVYXlbWoUs6U');
+my ($data, %options) = @_;
+my $content_hash     = sha256_base64($data);
+my $editor           = $options{'editor'} || $ENV{'VISUAL'} || $ENV{'EDITOR'} ||
+                       messages::error('Either the $VISUAL or $EDITOR environment variable should be set to a valid editor.');
+my $options          = $options{'options'} || $ENV{'VISUAL_OPTS'} || $ENV{'EDITOR_OPTS'} || '';
+my $extension        = $options{'extension'} || '';
+
+my (undef, $filename) = tempfile("$0." . ("X" x 32), OPEN => 0);
+$filename .= $extension;
+
+file::write($filename, $data);
+system("$editor $options \"$filename\"");
+
+my $result = file::read($filename);
+unlink $filename;
+$result;
+__97Lgs5+qfyAu92Vv5GCVVSYgUgFhOKYkVYXlbWoUs6U
+
+meta::internal_function('messages::error', <<'__200qXouilOAQNa4NkmIj6l+Rvb49Jpy8yxvIX29NcK4');
+my ($message) = @_;
+die "$message\n";
+__200qXouilOAQNa4NkmIj6l+Rvb49Jpy8yxvIX29NcK4
+
+meta::internal_function('messages::warning', <<'__DeU/1Klulk/y4fO+wtKt+liOmUKwCEYKM8BvtlXYXBc');
+my ($message) = @_;
+print "$message\n";
+__DeU/1Klulk/y4fO+wtKt+liOmUKwCEYKM8BvtlXYXBc
+
+meta::internal_function('namespace', <<'__D7UfKyyYZ1slZZyaS28hIt8a68jkI3ELBaddROXOHug');
+my ($name) = @_;
+$name =~ s/::.*$//;
+$name;
+__D7UfKyyYZ1slZZyaS28hIt8a68jkI3ELBaddROXOHug
+
+meta::internal_function('retrieve', <<'__Erqqkp11FEHKsitr0DEJZ6OCGDYAs+U6BSu4UvLvsFM');
+@data{@_};
+__Erqqkp11FEHKsitr0DEJZ6OCGDYAs+U6BSu4UvLvsFM
+
+meta::internal_function('serialize::single', <<'__lDBHaXpbrfER2envI2Ipy77IcdjUnlZou+rggaxsAWE');
+my $name               = shift || $_;
+my $contents           = $data{$name};
+my $delimiter          = "__" . sha256_base64 $contents;
+my $meta_function_name = "meta::" . namespace($name);
+my $invocation_name    = basename $name;
+"$meta_function_name('$invocation_name', <<'$delimiter');\n$contents\n$delimiter\n";
+__lDBHaXpbrfER2envI2Ipy77IcdjUnlZou+rggaxsAWE
+
+meta::internal_function('state_based_filename', <<'__zNSrihAkMKJG5spRYgcFdoNArFKig1u12gIp6gJ8pZw');
+my ($name) = @_;
+my $noise  = $name || state();
+$noise =~ s/\//-/g;
+"$0.$noise";
+__zNSrihAkMKJG5spRYgcFdoNArFKig1u12gIp6gJ8pZw
+
+meta::library('terminal', <<'__bakqo5o+Exi5Kw4onujvi9Pu3zR9lQA8cPKfYj6L74Q');
+# Functions for nice-looking terminal output.
+
+package terminal;
+
+use constant black  => "0;0";
+use constant red    => "1;31";
+use constant yellow => "1;33";
+use constant green  => "1;32";
+use constant blue   => "1;34";
+use constant purple => "1;35";
+use constant cyan   => "1;36";
+
+my %default_colors = (info => green);
+my $longest_prefix = 0;
+$longest_prefix = $longest_prefix < $_ ? $_ : $longest_prefix for map length, keys %default_colors;
+
+sub message {
+  my ($prefix, $message) = @_;
+  my $color = $default_colors{$prefix};
+  my $padding = ' ' x ($longest_prefix - length $prefix);
+  print "${padding}[\033[${color}m$prefix\033[0;0m] $message\n";
+}
+__bakqo5o+Exi5Kw4onujvi9Pu3zR9lQA8cPKfYj6L74Q
+
+meta::sh('js', <<'__qGEHHjKcAKXQz3fhJNhOtnWH3pjzV5E13Ndz4KxZrvs');
+js __code__
+__qGEHHjKcAKXQz3fhJNhOtnWH3pjzV5E13Ndz4KxZrvs
+
+meta::sh('node', <<'__SSgRGyOQPbEleu+2TMjU4OCmMnjOWFSaJj0iwGkBsug');
+node __code__
+__SSgRGyOQPbEleu+2TMjU4OCmMnjOWFSaJj0iwGkBsug
+
+meta::sh('node-repl', <<'__q9vTbSQ20/rHKteKvyoqfWOUHbXPrRXR8WvCi2vaMDY');
+node-repl __code__
+__q9vTbSQ20/rHKteKvyoqfWOUHbXPrRXR8WvCi2vaMDY
+
+meta::sh('repl', <<'__hpfIOvOFVwSLotcBcirerUZLwIeNISkgfqy8K01Nbk8');
+js -f __code__ -f -
+__hpfIOvOFVwSLotcBcirerUZLwIeNISkgfqy8K01Nbk8
+
+meta::sh('stats', <<'__e/Rj98I2/T+yRRdecrhlw5H3dWmBW2Vup15b2cbzKLg');
+echo $(cat __code__ | grep -v '//' | grep -v '^\s*$' | wc -l) LOC, \
+     $(cat __code__ | grep '//' | wc -l) comment lines, \
+     $(cat __code__ | grep '^\s*$' | wc -l) whitespace lines
+__e/Rj98I2/T+yRRdecrhlw5H3dWmBW2Vup15b2cbzKLg
+
+meta::vim_highlighter('ljs', <<'__EELq7R8BHu1htK8/oKRUrIUWVVYqdfaJgsvdyUimtss');
+" Literate JavaScript | Spencer Tipping <spencer@spencertipping.com>
+
+if version < 600
+  syntax clear
+elseif exists("b:current_syntax")
+  finish
+endif
+
+syn include @javascript syntax/javascript.vim
+
+syn match ljsGetDirective /::\s*get\s.*$/     contained
+syn cluster directives add=ljsGetDirective
+
+syn case match
+syn region lCodeRegion    start=/^\s*[\/!0-9a-z_()\[\]{}'"]/   end=/^$/ contains=@javascript transparent fold
+syn region lCommentRegion start=/^\s*[^\/!0-9a-z_()\[\]{}'" ]/ end=/^$/ contains=@directives fold
+
+hi link lCommentRegion  comment
+hi link ljsGetDirective special
+
+set foldmethod=syntax
+
+let b:current_syntax = "ljs"
+__EELq7R8BHu1htK8/oKRUrIUWVVYqdfaJgsvdyUimtss
+
+meta::internal('runtime', <<'__YPmIzwZkTg8URmPfjiwGRG4VDUF2ZCJqTEz+gjETYLQ');
+my $initial_state = sha256_base64 serialize();
+
+push @script_args, shift @ARGV while @ARGV && $ARGV[0] =~ /^-/;
+
+my $default_action = retrieve('data::default-action');
+chomp $default_action;
+my $function_name = shift(@ARGV) || $default_action || 'usage';
+$function_name = 'usage' unless $externalized_functions{$function_name};
+my $result = &{$function_name}(@ARGV);
+chomp $result;
+print "$result\n" if $result;
+
+END {
+  my $serialized_data = serialize();
+  my $final_state     = sha256_base64 $serialized_data;
+  save() unless $initial_state eq $final_state;
+}
+
+__YPmIzwZkTg8URmPfjiwGRG4VDUF2ZCJqTEz+gjETYLQ
+
+__END__
