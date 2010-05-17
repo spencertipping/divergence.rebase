@@ -297,7 +297,7 @@ var d = (function () {
 
 __rD3fc+Jsh34FKVviooHOz3iJLANG0+BJPeOF2NpylWU
 
-meta::code('main', <<'__tlczvokjOhc30Xv7pJMVAx/DS7sFxjAojdIKqhpsJLI');
+meta::code('main', <<'__MDs6Ck/RM1qH5bW9UkNNERL47j+mqOpGJKhtPjtvpvs');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -318,67 +318,36 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 'foo' normally anymore, so use this feature carefully.
 
 (function () {
-  var         d       = function     () {return d.eval.apply (this, arguments)},
-             qw       = function    (s) {return s.split (/\s+/)},
-            set       = function   (xs) {return (function ($) {for (var i = 0, l = xs.length; i < l; ++i) $[xs[i]] = true; return $}) ({})},
-           last       = function   (xs) {return xs[xs.length - 1]},
-              s = d.s = function (s, n) {return s === undefined || s === null ? '' : s.to_string ? s.to_string (n) : s.toString ()},
-              $       = null,
+  var set            = '.fold({< $0[$1] = true, $0 >}, {})'.fn(),            last = '$0[$0.length - 1]'.fn(),  qw = '.split(/\\s+/)'.fn(),
+        r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null;
 
-     precedence = {'[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6, '>>':6, '>>>':6, '<':7, '>':7,
-                   '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15, '+=':15, '-=':15, '*=':15, '/=':15,
-                   '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, ':': 16, ',':17, '(':18, '[':18, '{':18},
-          right = set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),
-        unaries = set(qw('u++ u-- u+ u- u! u~ new typeof ( [ {')),
-         idents = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),
-     sandwiches = set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),
- non_sandwiches = set(qw('( [ { ? :')),
-          opens = set(qw('( [ { ?')),
-           pair = {'(':')', '[':']', '{':'}', '?':':'},
-            ops = set(qw('+ - * / % & | ^ ! ~ = < > ? : ; . ,')),
- lvalue_assigns = set(qw('+= -= *= /= %= ^= &= |= <<= >>= >>>=')),
- literal_binary = set(qw('= , . : === !==')),
-  literal_unary = set(qw('u++ u-- u!')),
-   translations = {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},
-            max = 20,
-         macros = (function ($) {for (var k in lvalue_assigns) $[k] = (function (k) {return function (xs) {
-                                   return '(' + s(xs[0], prec('=')) + ' = ' + s(syntax(null, k.substr (0, k.length - 1), xs), prec('=')) + ')'}}) (k);
-                                 return $}) ({  '{': function (xs)    {return '{' + s(xs[0], max) + '}'}, '[': function (xs) {return '[' + s(xs[0], max) + ']'},
-                                                '?': function (xs, n) {return s(xs[0], n) + '?' + s(xs[1], max) + ':' + s(xs[2], n)},
-                                              '>$>': function (xs)    {return '(function(' + s(xs[0], max) + '){return ' + s(xs[1], max) + '})'}}),
+  d.init (r, {precedence: {'[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6, '>>':6, '>>>':6, '<':7, '>':7,
+                           '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15, '+=':15, '-=':15, '*=':15, '/=':15,
+                           '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, ':': 16, ',':17, '(':18, '[':18, '{':18},
 
-           prec = function (op) {return precedence[op] || max},
-          arity = function (op) {return ! op || unaries[op] || '[{'.indexOf(op) > -1 ? 1 : op === '?' ? 3 : 2},
-           disp = function (op) {return translations[op] || op},
+                   right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),            unary: set(qw('u++ u-- u+ u- u! u~ new typeof ( [ {')),
+                   ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),           pair: {'(':')', '[':']', '{':'}', '?':':'},
+              sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                            non_sandwiches: set(qw('( [ { ? :')),
+                   opens: set(qw('( [ { ?')),                                                                          punct: set(qw('+ - * / % & | ^ ! ~ = < > ? : ; . ,')),
+          lvalue_assigns: set(qw('+= -= *= /= %= ^= &= |= <<= >>= >>>=')),                                      translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},
+          literal_binary: set(qw('= , . : === !==')),                                                          literal_unary: set(qw('u++ u-- u!'))});
 
-Incremental parsing.
-  Operator-precedence parsing is done with incremental tree rewrites. Each tree node knows its intended arity (luckily this is fixed for each operator) and its precedence, and it accepts new
-  values and 'verbs', or operators. When a new value is encountered, it is added to the bottom-most tree with room for it.
+  Incremental parsing.
+  As tokens are read from the lexer they are written into a parse tree. Unlike a traditional grammar with productions, this parse tree works in terms of operators and values. Each element in
+  the text is considered to have a certain precedence and to comprise part of an expression. This leads to a weird model and a much more general grammar than JavaScript's, but this is
+  acceptable because we know that by the time we see the code it will be valid. The only problem is when we have nonlocal precedence alteration; one example of this is the 'in' keyword --
+  consider these two for loops:
 
-         syntax = d.syntax = function (p, op, xs) {xs || (xs = []);
-  return {   xs:  xs,
-             op:  function  () {return op},
-          value:  function (x) {return p && xs.length >= arity(op) ? p.value (x) : (xs.push (x), x && x.parent_to && x.parent_to (this) || this)},
-         values:  function ($) {var o = this; for (var i = 0, l = $.length; i < l; ++i) $[i] && (o = o.value ($[i])); return o},
-           verb:  function (x) {return op ? prec(x) - !! right[x] >= prec(op) ?
-                                                       (p || syntax().verb(x).value (this)) : xs.push ($ = syntax (this).verb (x).value (xs.pop ())) && $ : (op = x) && this},
-      parent_to:  function (x) {return p = x, this},
-       is_value:  function  () {return xs.length >= arity(op)},
-       sandwich:  function  () {return xs[0] && xs[1] && ! non_sandwiches[op] ? sandwiches[xs[0]] ? -1 : sandwiches[xs[1]] ? 1 : 0 : 0},
-          shake:  function  () {return xs[0] && xs[1] ? xs[0].sandwich && xs[0].sandwich() ===  1 ? syntax(p, xs[0].op() + xs[0].xs[1] + op, [xs[0].xs[0], xs[1]].concat (xs.slice (2))).shake() :
-                                                        xs[1].sandwich && xs[1].sandwich() === -1 ? syntax(p, op + xs[1].xs[0] + xs[1].op(), [xs[0], xs[1].xs[0]].concat (xs.slice (2))).shake() :
-                                                        syntax(p, op, [xs[0].shake ? xs[0].shake() : xs[0], xs[1].shake ? xs[1].shake() : xs[1]].concat (xs.slice(2))) : this},
-            top:  function  () {return p ? p.top () : this},
-        inspect:  function  () {return '("' + op + '" ' + xs.map (function (x) {return x && x.inspect ? x.inspect() : x}).join (' ') + ')'},
-       toString:  function (n) {return this.to_string (n)},
-      to_string:  function (n) {return ! op && ! xs.length ? '' :
-                                                      ! op ? xs.join(',') :
-                                                macros[op] ? macros[op].call (this, xs, n) :
-                                              prec(op) > n ? '(' + this.to_string(max) + ')' :
-                                        literal_binary[op] ? s(xs[0], prec(op)) + disp(op) + s(xs[1], prec(op)) :
-                                                             s(xs[0], prec(op)) + '["' + disp(op) + '"](' + s(xs[1], max) + ')'}}},
+    | for (var i in foo = bar) {...}
+    | for (var i = 'some-key' in some_hash; ...) {...}
 
-Lexing.
+  Despite being a pathological example, it demonstrates the nonlocality of the JavaScript grammar. We can't disambiguate these forms until we hit either '=' or 'in'. Once we do hit those
+  operators, the leftmost one has a precedence nearly as low as ';', since otherwise we would risk violating the lvalue. Unfortunately, cases like these require some context to parse
+  efficiently. However, rather than backtracking we can reflect the incremental refinement that we see when reading through the code; that is, upon looking at the 'for' we don't know which
+  type of for loop it is; but as we read more code we will find out. As long as we start with a general case and lazily refine, the parsing algorithm can remain O(n).
+
+
+  Lexing.
   The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
   logic with a expect_re flag that indicates whether the last token processed was an operator (if so, then we're expecting an operand and the next / delineates a regular expression).
 
@@ -396,16 +365,17 @@ Lexing.
   parse = d.parse = function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, es = [syntax()], openers = [], c = s.charAt.bind (s)};
                         while (i < l && ($_ = c(i))) {
           escaped = !! (token = '');
-               if                                (/\s/.test ($_))                                                      ++i;
-          else if                  ('([{?:}])'.indexOf ($_) > -1)                                                      expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
-          else if                ($_ === '/' && c(i + 1) === '*') while (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);
-          else if                ($_ === '/' && c(i + 1) === '/') while            (c(++i) !== '\n' && c(i) !== '\r');
-          else if ($_ === '/' &&    expect_re &&  (token = '/'))  while   (($_ = c(++i)) !== '/' || escaped || ! ++i)  expect_re =  ! (token += c(i)), escaped = ! escaped && $_ === '\\';
-          else if ($_ === '"' && ! (expect_re = ! (token = '"'))) while   (($_ = c(++i)) !== '"' || escaped || ! ++i)  token += c(i),                  escaped = ! escaped && $_ === '\\';
-          else if ($_ === "'" && ! (expect_re = ! (token = "'"))) while   (($_ = c(++i)) !== "'" || escaped || ! ++i)  token += c(i),                  escaped = ! escaped && $_ === '\\';
-          else if         (expect_re && ops[$_] && (token = 'u')) while    (ops[$_ = c(i)] && precedence[token + $_])  expect_re = !! (token += $_), ++i;
-          else if                                       (ops[$_]) while    (ops[$_ = c(i)] && precedence[token + $_])  expect_re = !! (token += $_), ++i;
-          else                                                    while                           (idents[$_ = c(i)])  expect_re = !! precedence[token += $_], ++i;
+               if                                (/\s/.test ($_))                                                       ++i;
+          else if                  ('([{?:}])'.indexOf ($_) > -1)                                                       expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
+          else if                ($_ === '/' && c(i + 1) === '*')  while (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);
+          else if                ($_ === '/' && c(i + 1) === '/')  while       (($_ = c(++i)) !== '\n' && $_ !== '\r');
+          else if ($_ === '/' &&    expect_re &&  (token = '/'))  {while            (($_ = c(++i)) !== '/' || escaped)  expect_re =  ! (token += $_), escaped = ! escaped && $_ === '\\';
+                                                                   while                      (r.ident[($_ = c(++i))])  token += $_}
+          else if ($_ === '"' && ! (expect_re = ! (token = '"')))  while   (($_ = c(++i)) !== '"' || escaped || ! ++i)  token += $_,                  escaped = ! escaped && $_ === '\\';
+          else if ($_ === "'" && ! (expect_re = ! (token = "'")))  while   (($_ = c(++i)) !== "'" || escaped || ! ++i)  token += $_,                  escaped = ! escaped && $_ === '\\';
+          else if         (expect_re && ops[$_] && (token = 'u'))  while    (ops[$_ = c(i)] && precedence[token + $_])  expect_re = !! (token += $_), ++i;
+          else if                                       (ops[$_])  while    (ops[$_ = c(i)] && precedence[token + $_])  expect_re = !! (token += $_), ++i;
+          else                                                     while                          (r.ident[$_ = c(i)])  expect_re = !! precedence[token += $_], ++i;
 
           if (! token) continue;
 
@@ -416,18 +386,8 @@ Lexing.
           else if                                 (precedence[token]) es[es.length - 1] = last(es).verb  (token);
           else                                                        es[es.length - 1] = last(es).value (token);
                         }
-                        return es.pop().top()};
-
-  (d.extend = function  (o, $) {for (var k in $) $.hasOwnProperty (k) && (o[k] = $[k]); return o}) (d,
-             {sandwich: function     () {for (var i = 0, l = arguments.length; i < l; ++i) sandwiches[arguments[i]] = true; return d},
-                 infix: function (s, f) {macros[s] = f; return d},
-                  eval: function    (x) {return eval (d.parse (x).to_string (0))},
-            prototypes: {Number: {zero: 0, '+': function (y) {return this + y}, '-': function (y) {return this - y}}}});
-
-  for (var k in d.prototypes) d.extend (d.prototypes[k].zero.constructor.prototype, d.prototypes[k]);
-
-  return d}) ();
-__tlczvokjOhc30Xv7pJMVAx/DS7sFxjAojdIKqhpsJLI
+                        return es.pop().top()}}) ();
+__MDs6Ck/RM1qH5bW9UkNNERL47j+mqOpGJKhtPjtvpvs
 
 meta::code('test', <<'__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
