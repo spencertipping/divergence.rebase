@@ -297,7 +297,7 @@ var d = (function () {
 
 __rD3fc+Jsh34FKVviooHOz3iJLANG0+BJPeOF2NpylWU
 
-meta::code('main', <<'__GLtUiOa1OO+DvnnqKN4cg/m/9CTFfhFKKMtaRdAQQhk');
+meta::code('main', <<'__bsIhl//blsj6Euz91DSJXeKTqLvQDOhM+PBH1ROFGwU');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -330,7 +330,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
               sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                            non_sandwiches: set(qw('( [ { ? :')),
                    opens: set(qw('( [ { ?')),                                                                          punct: set(qw('+ - * / % & | ^ ! ~ = < > ? : ; . ,')),
           lvalue_assigns: set(qw('+= -= *= /= %= ^= &= |= <<= >>= >>>=')),                                      translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},
-          literal_binary: set(qw('= , . : === !==')),                                                          literal_unary: set(qw('u++ u-- u!'))});
+          literal_binary: set(qw('= , . : === !==')),                                                          literal_unary: set(qw('u++ u-- u!')),
+
+                    init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
 
   Incremental parsing.
   As tokens are read from the lexer they are written into a parse tree. Unlike a traditional grammar with productions, this parse tree works in terms of operators and values. Each element in
@@ -346,24 +348,14 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   efficiently. However, rather than backtracking we can reflect the incremental refinement that we see when reading through the code; that is, upon looking at the 'for' we don't know which
   type of for loop it is; but as we read more code we will find out. As long as we start with a general case and lazily refine, the parsing algorithm can remain O(n).
 
+                  syntax: function () {},
 
   Lexing.
   The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
   logic with a expect_re flag that indicates whether the last token processed was an operator (if so, then we're expecting an operand and the next / delineates a regular expression).
 
-  Feeding tokens to the incremental parser tree is generally easy enough; if there aren't any parentheses involved, then we just hand tokens to whichever tree we have and grab the tree that it
-  gives back. (This latter assignment lets us keep track of where we are in the expression tree.) The hard part arises when we do have parenthesized expressions. We need to make sure that
-  these expressions are sealed off from each other; that is, we can't do any sort of rewrites across paren barriers. This means two things:
-
-    | 1. Any time we have a sealed expression, we need to introduce an identity operator to contain it. Otherwise, expressions with sandwiches would become ambiguous; consider, for example,
-         something like x > ($ > y) -- clearly not meant to be interpreted as x >$> y.
-
-    | 2. In the normal course of expression rewrites we need to be careful not to dig through identity-transformed expressions.
-
-  Once we have these guarantees, we can treat parenthesized blocks normally.
-
-  parse = d.parse = function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, es = [syntax()], openers = [], c = s.charAt.bind (s);
-                        while (i < l && ($_ = c(i))) {
+                   parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, es = [r.syntax()], openers = [], c = s.charAt.bind (s);
+                          while (i < l && ($_ = c(i))) {
           escaped = !! (token = '');
                if                                (/\s/.test ($_))                                                       ++i;
           else if                  ('([{?:}])'.indexOf ($_) > -1)                                                       expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
@@ -385,8 +377,8 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else if                     (token === pair[last(openers)]) $ = es.pop().top(),    es[es.length - 1] = last(es).value ($), openers.pop ();
           else if                                 (precedence[token]) es[es.length - 1] = last(es).verb  (token);
           else                                                        es[es.length - 1] = last(es).value (token)}
-                        return es.pop().top()}}) ();
-__GLtUiOa1OO+DvnnqKN4cg/m/9CTFfhFKKMtaRdAQQhk
+                          return es.pop().top()}})}) ();
+__bsIhl//blsj6Euz91DSJXeKTqLvQDOhM+PBH1ROFGwU
 
 meta::code('test', <<'__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
@@ -453,15 +445,15 @@ Parse tests.
   test ('[foo, bar, bif, baz]');
 __z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8
 
-meta::code('test-utils', <<'__0gq0joB9agsAIRLVGmvu4gqsIlTHY1DayHRb4DOA9gY');
+meta::code('test-utils', <<'__IOBfyQG7+6nnzAg0VPc79VE6ESQv6crXSEHlRKK8Yek');
 Unit test utilities.
 
   var assert       = function (x, msg) {if (! x) throw new Error ("Assertion failed: " + msg)};
   var assert_equal = function (x, y, msg) {x === y || assert (x === y, msg + ' -- ' + x.toString () + ' !== ' + y.toString ())};
 
   var trace        = function (x) {print (x); return x};
-  var test         = function (s) {print (s + '  =>  ' + d.parse (s).inspect (20))};
-__0gq0joB9agsAIRLVGmvu4gqsIlTHY1DayHRb4DOA9gY
+  var test         = function (s) {print (s + '  =>  ' + d.rebase.parse (s).toString())};
+__IOBfyQG7+6nnzAg0VPc79VE6ESQv6crXSEHlRKK8Yek
 
 meta::data('default-action', <<'__zmNcTqv/Xk9W26j7HjnKI1UwqitrGFM+7xrzhiAWxXc');
 shell
