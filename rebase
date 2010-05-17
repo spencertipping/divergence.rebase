@@ -297,7 +297,7 @@ var d = (function () {
 
 __rD3fc+Jsh34FKVviooHOz3iJLANG0+BJPeOF2NpylWU
 
-meta::code('main', <<'__ks44WW2E1efSDlwgqaL6mJJU0FQsZ9Cdx2xPjX1gGlo');
+meta::code('main', <<'__EKmkM+F8XCWCL1W4xeowewGQkMVLvfNtLetXi+XJyLA');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -348,6 +348,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   efficiently. However, rather than backtracking we can reflect the incremental refinement that we see when reading through the code; that is, upon looking at the 'for' we don't know which
   type of for loop it is; but as we read more code we will find out. As long as we start with a general case and lazily refine, the parsing algorithm can remain O(n).
 
+  This type of nonlocality requires multilevel upward communication. Syntax trees, then, can send signals upwards to any nodes which are unresolved. Nodes which make no decisions forward the
+  signals, and nodes which make decisions but are already decided block the signals from further propagation.
+
                   syntax: function () {},
 
   Lexing.
@@ -378,7 +381,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else if                               (r.precedence[token]) es[es.length - 1] = last(es).verb  (token);
           else                                                        es[es.length - 1] = last(es).value (token)}
                           return es.pop().top()}})}) ();
-__ks44WW2E1efSDlwgqaL6mJJU0FQsZ9Cdx2xPjX1gGlo
+__EKmkM+F8XCWCL1W4xeowewGQkMVLvfNtLetXi+XJyLA
 
 meta::code('test', <<'__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
