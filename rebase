@@ -297,7 +297,7 @@ var d = (function () {
 
 __rD3fc+Jsh34FKVviooHOz3iJLANG0+BJPeOF2NpylWU
 
-meta::code('main', <<'__MDs6Ck/RM1qH5bW9UkNNERL47j+mqOpGJKhtPjtvpvs');
+meta::code('main', <<'__GLtUiOa1OO+DvnnqKN4cg/m/9CTFfhFKKMtaRdAQQhk');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -362,7 +362,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
   Once we have these guarantees, we can treat parenthesized blocks normally.
 
-  parse = d.parse = function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, es = [syntax()], openers = [], c = s.charAt.bind (s)};
+  parse = d.parse = function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, es = [syntax()], openers = [], c = s.charAt.bind (s);
                         while (i < l && ($_ = c(i))) {
           escaped = !! (token = '');
                if                                (/\s/.test ($_))                                                       ++i;
@@ -384,10 +384,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else if            (token === ':' && last(openers) === '?') $ = es.pop().top().xs, es[es.length - 1] = last(es).verb (openers.pop ()).values ($);
           else if                     (token === pair[last(openers)]) $ = es.pop().top(),    es[es.length - 1] = last(es).value ($), openers.pop ();
           else if                                 (precedence[token]) es[es.length - 1] = last(es).verb  (token);
-          else                                                        es[es.length - 1] = last(es).value (token);
-                        }
+          else                                                        es[es.length - 1] = last(es).value (token)}
                         return es.pop().top()}}) ();
-__MDs6Ck/RM1qH5bW9UkNNERL47j+mqOpGJKhtPjtvpvs
+__GLtUiOa1OO+DvnnqKN4cg/m/9CTFfhFKKMtaRdAQQhk
 
 meta::code('test', <<'__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
