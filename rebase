@@ -296,7 +296,7 @@ var d = (function () {
   return d}) ();
 __hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-meta::code('main', <<'__iPtvxMxhGMKUiMIdCStQm0fX/yPmLRtjbcH8IbWq1Do');
+meta::code('main', <<'__VbdWRpa1AC7oZ7Ta6BHSk79Ify6b1UshwhVEfB8GcLw');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -329,10 +329,15 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                    unary: set(qw('u++ u-- u+ u- u! u~ new typeof var case try finally throw return case else delete void import export ( [ { ?:')),
                    ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                            punct: set('+-*/%&|^!~=<>?:;.,'.split ('')),
                    right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),                            openers: {'(':')', '[':']', '{':'}', '?':':'},
-              sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                              non_sandwiches: set(qw('( [ { ? : . ,')),
+              sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                                sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
            prefix_binary: set(qw('if function catch for switch with')),                                                                closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
             translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                           arity_of: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
-                  macros: d.init ({}, d.map (set(qw('+ - * / & | ^ % >> << >>>')), '$1.maps_to ({|xs, e| xs[0].syntax(null, "=", [e.xs[0], xs[0].syntax(null, xs[1], e.xs)]) |})'.fn(r))),
+           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),
+                  macros: ['$0.lvalue_assign[$1.op] ? $0.syntax(null, "=", [$1.xs[0], $0.syntax(null, $1.op.substring(0, $1.op.length - 1), $1.xs)]) : $1'.fn(r),
+                            function (e) {
+  return r.sandwich_ops[e.op] ? e.xs[1] && e.xs[1].op && r.sandwich_ops[e.xs[1].op] && r.sandwiches[e.xs[1].xs[0]] ? r.syntax(e.parent, e.op + e.xs[1].xs[0] + e.xs[1].op, [e.xs[0], e.xs[1].xs[1]]) :
+                                e.xs[0] && e.xs[0].op && r.sandwich_ops[e.xs[0].op] && r.sandwiches[e.xs[0].xs[1]] ? r.syntax(e.parent, e.xs[0].op + e.xs[0].xs[1] + e.op, [e.xs[0].xs[0], e.xs[1]]) :
+                                e : e}],
 
                     init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
 
@@ -340,16 +345,14 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   This is certainly the easiest part. All we have to do is follow some straightforward rules about how operators and such get serialized. Luckily this is all encapsulated into the toString
   logic of the syntax tree.
 
-                 deparse: '.toString()'.fn(),
+                 deparse: 'eval($0.toString())'.fn(),
 
   Tree transformation.
   The goal here is to transform the tree in logical form before serializing it to a final function. The way I've chosen to go about this is to use a macro table and deep-map over the syntax
   tree. Each node gets inspected, and mapping functions can modify nodes by returning alternative values. To save space and time, I'm having macros replace structures destructively rather than
   using a functional approach.
 
-               transform: function (t) {var mapped = r.macros[t.op] ? r.macros[t.op] (t) : t.xs && r.macros[t.xs[0]] ? r.macros[t.xs[0]] (t) : t;
-                                        mapped.xs = mapped.xs.map (r.transform);
-                                        return mapped},
+               transform: function (t) {var mapped = r.macros.fold ('$1($0)', t); mapped.xs && (mapped.xs = mapped.xs.map (r.transform)); return mapped},
 
   Incremental parsing.
   As tokens are read from the lexer they are written into a parse tree. Unlike a traditional grammar with productions, this parse tree works in terms of operators and values. Each element in
@@ -420,7 +423,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else                                                                            t.push_value (token);
                           }
                           return t.top()}})}) ();
-__iPtvxMxhGMKUiMIdCStQm0fX/yPmLRtjbcH8IbWq1Do
+__VbdWRpa1AC7oZ7Ta6BHSk79Ify6b1UshwhVEfB8GcLw
 
 meta::code('test', <<'__dJA4D2NM8sPVctacipwEXzHXzmMGYggu0i//eCkv31M');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
@@ -499,15 +502,15 @@ Parse tests.
   test ('[foo, bar, bif, baz]');
 __dJA4D2NM8sPVctacipwEXzHXzmMGYggu0i//eCkv31M
 
-meta::code('test-utils', <<'__IOBfyQG7+6nnzAg0VPc79VE6ESQv6crXSEHlRKK8Yek');
+meta::code('test-utils', <<'__75F0tNk+Nt2i9zSEzFwH4QhLyD3VZxW+mtCvmhIVIqk');
 Unit test utilities.
 
   var assert       = function (x, msg) {if (! x) throw new Error ("Assertion failed: " + msg)};
   var assert_equal = function (x, y, msg) {x === y || assert (x === y, msg + ' -- ' + x.toString () + ' !== ' + y.toString ())};
 
   var trace        = function (x) {print (x); return x};
-  var test         = function (s) {print (s + '  =>  ' + d.rebase.parse (s).toString())};
-__IOBfyQG7+6nnzAg0VPc79VE6ESQv6crXSEHlRKK8Yek
+  var test         = function (s) {print (s + '  =>  ' + d.rebase.parse (s).toString() + '  =>  ' + d.rebase.transform (d.rebase.parse (s)))};
+__75F0tNk+Nt2i9zSEzFwH4QhLyD3VZxW+mtCvmhIVIqk
 
 meta::data('default-action', <<'__zmNcTqv/Xk9W26j7HjnKI1UwqitrGFM+7xrzhiAWxXc');
 shell
