@@ -296,7 +296,7 @@ var d = (function () {
   return d}) ();
 __hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-meta::code('main', <<'__+8EZfobfF69ZIpEgVnbAcBuFwkxu5H7kH8tBqiYwNDk');
+meta::code('main', <<'__EArz8yZAIKyizH01Q0PBM+/g3/S8jiEUFhasc1j2kqc');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -361,14 +361,15 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
     | 2. When we add an operator to a tree, we check the precedence. If the new operator binds first, then it is added as a child, given a value, and returned. Otherwise we add it to the
          parent.
 
-                  syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.type ({is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
-                                                                            push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many.").fail()'.fn(),
-                                                                             with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
-                                                                               push_op: '$0.precedence[$1] - !! $0.right[$1] <= $0.precedence[@op] ? @graft($1) : @hand_to_parent($1)'.fn(r),
-                                                                                 graft: '@push_value(@is_value() ? $0.syntax($_, $1).with_node(@xs.pop()) : $0.syntax($_, $1))'.fn(r),
-                                                                        hand_to_parent: '@parent ? @parent.push_op($0) : "Syntax trees should have a minimal-precedence container".fail()'.fn(),
-                                                                                   top: '@parent ? @parent.top() : $_'.fn(),
-                                                                              toString: '"(" + @op + " " + @xs.map(".toString()").join(" ") + ")"'.fn()}),
+                  syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.type ({
+                           is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
+                         push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many.").fail()'.fn(),
+                          with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
+                            push_op: '$0.precedence[$1] - !! $0.right[$1] <= $0.precedence[@op] || @op === "?" && @xs.length === 2 ? @graft($1) : @hand_to_parent($1)'.fn(r),
+                              graft: '@push_value(@is_value() || @op === "?" && @xs.length === 2 ? $0.syntax($_, $1).with_node(@xs.pop()) : $0.syntax($_, $1))'.fn(r),
+                     hand_to_parent: '@parent ? @parent.push_op($0) : "Syntax trees should have a minimal-precedence container".fail()'.fn(),
+                                top: '@parent ? @parent.top() : $_'.fn(),
+                           toString: '"(" + @op + " " + @xs.map(".toString()").join(" ") + ")"'.fn()}),
 
   Lexing.
   The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
@@ -392,13 +393,13 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           if (! token) continue;
 
                if       (t.is_value() && '[('.indexOf (token) > -1)                      t = t.push_op (token + '!').graft (token), openers.push (token);
-          else if (($_ = r.closers[token]) && last(openers) === $_) {while (t.op !== $_) t = t.parent; openers.pop(); $_ === '?' || (t = t.parent)}
+          else if (($_ = r.closers[token]) && last(openers) === $_) {while (t.op !== $_) t = t.parent; openers.pop() === '?' || (t = t.parent)}
           else if                                (r.openers[token])                      t = t.graft (token), openers.push (token);
           else if                             (r.precedence[token])                      t = t.push_op (token);
           else                                                                           t.push_value (token);
                           }
                           return t.top()}})}) ();
-__+8EZfobfF69ZIpEgVnbAcBuFwkxu5H7kH8tBqiYwNDk
+__EArz8yZAIKyizH01Q0PBM+/g3/S8jiEUFhasc1j2kqc
 
 meta::code('test', <<'__JuJjN2K+5FPblw5DGPjaLZbZQmdqnDtLkods2NoCag4');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
