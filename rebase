@@ -296,7 +296,7 @@ var d = (function () {
   return d}) ();
 __hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-meta::code('main', <<'__VbdWRpa1AC7oZ7Ta6BHSk79Ify6b1UshwhVEfB8GcLw');
+meta::code('main', <<'__w7OOmfOYxElnQ4lqaUR8kMzzWFVuVbEiHuM9YOJMo2Y');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -332,12 +332,13 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
               sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                                sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
            prefix_binary: set(qw('if function catch for switch with')),                                                                closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
             translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                           arity_of: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
-           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),
+           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                             literal: set(qw('u-- u++ = (! [! . , ?')),
                   macros: ['$0.lvalue_assign[$1.op] ? $0.syntax(null, "=", [$1.xs[0], $0.syntax(null, $1.op.substring(0, $1.op.length - 1), $1.xs)]) : $1'.fn(r),
                             function (e) {
   return r.sandwich_ops[e.op] ? e.xs[1] && e.xs[1].op && r.sandwich_ops[e.xs[1].op] && r.sandwiches[e.xs[1].xs[0]] ? r.syntax(e.parent, e.op + e.xs[1].xs[0] + e.xs[1].op, [e.xs[0], e.xs[1].xs[1]]) :
                                 e.xs[0] && e.xs[0].op && r.sandwich_ops[e.xs[0].op] && r.sandwiches[e.xs[0].xs[1]] ? r.syntax(e.parent, e.xs[0].op + e.xs[0].xs[1] + e.op, [e.xs[0].xs[0], e.xs[1]]) :
-                                e : e}],
+                                e : e},
+                           '$0.literal[$1.op] ? $1 : $0.syntax($1.parent, "(!").with_node($0.syntax(null, "[!", [$1.xs[0], "[\\"" + $1.op + "\\"]"])).with_node($1.xs[1])'.fn(r)],
 
                     init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
 
@@ -423,7 +424,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else                                                                            t.push_value (token);
                           }
                           return t.top()}})}) ();
-__VbdWRpa1AC7oZ7Ta6BHSk79Ify6b1UshwhVEfB8GcLw
+__w7OOmfOYxElnQ4lqaUR8kMzzWFVuVbEiHuM9YOJMo2Y
 
 meta::code('test', <<'__dJA4D2NM8sPVctacipwEXzHXzmMGYggu0i//eCkv31M');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
