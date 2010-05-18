@@ -296,7 +296,7 @@ var d = (function () {
   return d}) ();
 __hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-meta::code('main', <<'__CVp8guTEudpaiHQTQo7E5ufIh/eOVRQp+LE0huOZjk4');
+meta::code('main', <<'__+ZaugaUATmdSBsobXTTLFgRFrSJHS8sCq+qaHKF55yY');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -332,7 +332,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
               sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                              non_sandwiches: set(qw('( [ { ? :')),
           literal_binary: set(qw('= , . : === !==')),                                                                            literal_unary: set(qw('u++ u-- u!')),
                 arity_of: '$0.unary[$1] ? 1 : $0 === "?" ? 3 : 2'.fn(r),                                                        lvalue_assigns: set(qw('+= -= *= /= %= ^= &= |= <<= >>= >>>=')),
-            translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                            closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
+            translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                            closers: {')':'(', ']':'[', '}':'{', ':':'?'},
 
                     init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
 
@@ -392,17 +392,17 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
           if (! token) continue;
 
-               if       (t.is_value() && '[('.indexOf (token) > -1)                      t = t.push_op (token + '!').graft (token), openers.push (token);
-          else if (($_ = r.closers[token]) && last(openers) === $_) {while (t.op !== $_) t = t.parent; openers.pop(), t = t.parent}
-          else if                                   (token === '?')                      t = t.push_op (token).graft ('?:'), openers.push (token);
-          else if                                (r.openers[token])                      t = t.graft (token), openers.push (token);
-          else if                             (r.precedence[token])                      t = t.push_op (token);
-          else                                                                           t.push_value (token);
+               if       (t.is_value() && '[('.indexOf (token) > -1)                                           t = t.push_op (token + '!').graft (token), openers.push (token);
+          else if (($_ = r.closers[token]) && last(openers) === $_) {while (t.op.charAt(0) !== $_.charAt(0))  t = t.parent; openers.pop(), t = t.parent}
+          else if                                   (token === '?')                                           t = t.push_op (token).graft ('?:'), openers.push ('?:');
+          else if                                (r.openers[token])                                           t = t.graft (token), openers.push (token);
+          else if                             (r.precedence[token])                                           t = t.push_op (token);
+          else                                                                                                t.push_value (token);
                           }
                           return t.top()}})}) ();
-__CVp8guTEudpaiHQTQo7E5ufIh/eOVRQp+LE0huOZjk4
+__+ZaugaUATmdSBsobXTTLFgRFrSJHS8sCq+qaHKF55yY
 
-meta::code('test', <<'__aUP27PkQFyW2rMUeqKZ7Xp92X2+dmiVkfx/umwLddQk');
+meta::code('test', <<'__dHxLIrehpGZt9m9yp6+av3x4LtUhVqwqErT00BU+T9Q');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -443,6 +443,8 @@ Parse tests.
 
   test ('foo ? bar + bok : bif');
   test ('foo ? bar ? bif : baz : bok');
+  test ('foo ? bar ? bif : baz : bok; quux');
+  test ('foo ? bar ? bif : baz : bok = quux');
 
   test ('foo + (bar == bif) * (baz === bok)');
 
@@ -472,7 +474,7 @@ Parse tests.
   test ('{foo: "bar", bif: "baz"}');
   test ('{foo: "bar" ? "bif" : "baz", bar: "bif" || "baz"}');
   test ('[foo, bar, bif, baz]');
-__aUP27PkQFyW2rMUeqKZ7Xp92X2+dmiVkfx/umwLddQk
+__dHxLIrehpGZt9m9yp6+av3x4LtUhVqwqErT00BU+T9Q
 
 meta::code('test-utils', <<'__IOBfyQG7+6nnzAg0VPc79VE6ESQv6crXSEHlRKK8Yek');
 Unit test utilities.
