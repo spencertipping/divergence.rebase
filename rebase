@@ -296,7 +296,7 @@ var d = (function () {
   return d}) ();
 __hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-meta::code('main', <<'__EArz8yZAIKyizH01Q0PBM+/g3/S8jiEUFhasc1j2kqc');
+meta::code('main', <<'__KGzkmqcDHHUAgiXXhWA4KLKXU0FQHM4QpI3/c/8stew');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -323,10 +323,10 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   d.init (r, {precedence: {'function':1, '[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6,
                            '>>':6, '>>>':6, '<':7, '>':7, '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15,
                            '+=':15, '-=':15, '*=':15, '/=':15, '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, 'case':16, ':': 17, ',':18, 'var':19, 'if':19, 'while':19,
-                           'for':19, 'do':19, 'switch':19, 'return':19, 'throw':19, 'delete':19, 'export':19, 'import':19, 'try':19, 'catch':19, 'finally':19,
-                           'void':19, 'with':19, ';':20, '{':21, '(':21, '[':21},
+                           'for':19, 'do':19, 'switch':19, 'return':19, 'throw':19, 'delete':19, 'export':19, 'import':19, 'try':19, 'catch':19, 'finally':19, 'void':19, 'with':19, 'else':19,
+                           ';':20, '{':21, '(':21, '[':21},
 
-                   unary: set(qw('u++ u-- u+ u- u! u~ new typeof var case try finally throw case delete void import export ( [ {')),
+                   unary: set(qw('u++ u-- u+ u- u! u~ new typeof var case try finally throw return case else delete void import export ( [ {')),
             translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                            closers: {')':'(', ']':'[', '}':'{', ':':'?'},
                    ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                          openers: set(qw('( [ { ?')),
                    right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),                              punct: set(qw('+ - * / % & | ^ ! ~ = < > ? : ; . ,')),
@@ -399,9 +399,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else                                                                           t.push_value (token);
                           }
                           return t.top()}})}) ();
-__EArz8yZAIKyizH01Q0PBM+/g3/S8jiEUFhasc1j2kqc
+__KGzkmqcDHHUAgiXXhWA4KLKXU0FQHM4QpI3/c/8stew
 
-meta::code('test', <<'__JuJjN2K+5FPblw5DGPjaLZbZQmdqnDtLkods2NoCag4');
+meta::code('test', <<'__aUP27PkQFyW2rMUeqKZ7Xp92X2+dmiVkfx/umwLddQk');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -419,6 +419,11 @@ Parse tests.
   test ('100 += 200 * 300');
   test ('foo += bar * bif');
   test ('foo + -5');
+
+  test ('if (foo) bar;');
+  test ('if (foo) bar; else bif;');
+
+  test ('foo(function (x) {return x + 1}, function (y) {return y + 1})');
 
   test ('x >$> (x + 1)');
   test ('x >$>$> (x + 1)');
@@ -466,7 +471,7 @@ Parse tests.
   test ('{foo: "bar", bif: "baz"}');
   test ('{foo: "bar" ? "bif" : "baz", bar: "bif" || "baz"}');
   test ('[foo, bar, bif, baz]');
-__JuJjN2K+5FPblw5DGPjaLZbZQmdqnDtLkods2NoCag4
+__aUP27PkQFyW2rMUeqKZ7Xp92X2+dmiVkfx/umwLddQk
 
 meta::code('test-utils', <<'__IOBfyQG7+6nnzAg0VPc79VE6ESQv6crXSEHlRKK8Yek');
 Unit test utilities.
