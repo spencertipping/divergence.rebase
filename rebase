@@ -296,7 +296,7 @@ var d = (function () {
   return d}) ();
 __hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-meta::code('main', <<'__UTusap7cJjEz0MTN3VmToJFjh5B+UvK1KBa2Jyqogn0');
+meta::code('main', <<'__iPtvxMxhGMKUiMIdCStQm0fX/yPmLRtjbcH8IbWq1Do');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -318,7 +318,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
 (function () {
   var set            = '.fold({< $0[$1] = true, $0 >}, {})'.fn(),            last = '$0[$0.length - 1]'.fn(),  qw = '.split(/\\s+/)'.fn(),
-        r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null;
+        r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null,                       s = '$0 === undefined ? "" : $0.toString()'.fn();
 
   d.init (r, {precedence: {'function':1, '[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6,
                            '>>':6, '>>>':6, '<':7, '>':7, '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15,
@@ -384,12 +384,12 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                               graft: '@push_value(@is_value() ? $0.syntax($_, $1).with_node(@xs.pop()) : $0.syntax($_, $1))'.fn(r),
                      hand_to_parent: '@parent ? @parent.push_op($0) : "Syntax trees should have a minimal-precedence container".fail()'.fn(),
                                 top: '@parent ? @parent.top() : $_'.fn(),
-                           toString:  function () {return '([{'.indexOf(this.op) > -1 ? this.op + this.xs[0] + r.openers[this.op] :
-                                                                      this.op === '?' ? this.xs[0] + ' ? ' + this.xs[1].xs[0] + ' : ' + this.xs[2] :
-                                                 this.op === '(!' || this.op === '[!' ? this.xs[0] + this.xs[1] :
-                                                                     r.unary[this.op] ? this.op + ' ' + this.xs[0] :
-                                                             r.prefix_binary[this.op] ? this.op + ' ' + this.xs[0] + ' ' + this.xs[1] :
-                                                                                        this.xs[0] + ' ' + this.op + ' ' + this.xs[1]}}),
+                           toString:  function () {return '([{'.indexOf(this.op) > -1 ? this.op + s(this.xs[0]) + r.openers[this.op] :
+                                                                      this.op === '?' ? s(this.xs[0]) + ' ? ' + s(this.xs[1].xs[0]) + ' : ' + s(this.xs[2]) :
+                                                 this.op === '(!' || this.op === '[!' ? s(this.xs[0]) + s(this.xs[1]) :
+                                                                     r.unary[this.op] ? this.op + ' ' + s(this.xs[0]) :
+                                                             r.prefix_binary[this.op] ? this.op + ' ' + s(this.xs[0]) + ' ' + s(this.xs[1]) :
+                                                                                        s(this.xs[0]) + ' ' + this.op + ' ' + s(this.xs[1])}}),
 
   Lexing.
   The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
@@ -420,7 +420,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else                                                                            t.push_value (token);
                           }
                           return t.top()}})}) ();
-__UTusap7cJjEz0MTN3VmToJFjh5B+UvK1KBa2Jyqogn0
+__iPtvxMxhGMKUiMIdCStQm0fX/yPmLRtjbcH8IbWq1Do
 
 meta::code('test', <<'__dJA4D2NM8sPVctacipwEXzHXzmMGYggu0i//eCkv31M');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
