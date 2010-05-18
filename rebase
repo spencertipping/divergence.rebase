@@ -215,7 +215,7 @@ something most people will normally do. In the future there may be a locking mec
 
 __3uM+GRhsAnxE6BFehM2nkGju4J93JQjqONxKbpE0Cdg
 
-meta::code('divergence-lib', <<'__JbC3IW6lMAU+S188gDndVIdxn+L0oWDO/iPiY10Hd48');
+meta::code('divergence-lib', <<'__hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk');
 Divergence core library | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -294,10 +294,9 @@ var d = (function () {
           cps:  function (c) {var cc = [this.fn(), [c = (c || d.id).fn().proxy()]]; while (cc[0] !== c) cc = cc[0].fn().apply (this, cc[1]); return c.apply (this, cc[1])}});
 
   return d}) ();
+__hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-__JbC3IW6lMAU+S188gDndVIdxn+L0oWDO/iPiY10Hd48
-
-meta::code('main', <<'__VWOLC0I5H3RzSHgqpnQ//dWDYbpi+IgN0xZUxG0JHjI');
+meta::code('main', <<'__SzToIBhZlyHrkuFrpvfx2BZ9JSHz5TknlSxakbtRDSQ');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -321,19 +320,21 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   var set            = '.fold({< $0[$1] = true, $0 >}, {})'.fn(),            last = '$0[$0.length - 1]'.fn(),  qw = '.split(/\\s+/)'.fn(),
         r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null;
 
-  d.init (r, {precedence: {'function':1, '[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6, '>>':6,
-                           '>>>':6, '<':7, '>':7, '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15, '+=':15,
-                           '-=':15, '*=':15, '/=':15, '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, 'case':16, ':': 17, ',':18, 'var':19, 'if':19, 'while':19, 'for':19,
-                           'do':19, 'switch':19, ';':20},
+  d.init (r, {precedence: {'function':1, '[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4, '+':5, '-':5, '<<':6,
+                           '>>':6, '>>>':6, '<':7, '>':7, '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12, '||':13, '?':14, '=':15,
+                           '+=':15, '-=':15, '*=':15, '/=':15, '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, 'case':16, ':': 17, ',':18, 'var':19, 'if':19, 'while':19,
+                           'for':19, 'do':19, 'switch':19, 'return':19, 'throw':19, 'delete':19, 'export':19, 'import':19, 'try':19, 'catch':19, 'finally':19,
+                           'void':19, 'with':19, ';':20, '{':21, '(':21, '[':21},
 
-                   right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),            unary: set(qw('u++ u-- u+ u- u! u~ new typeof var case')),
-                   ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),           pair: {'(':')', '[':']', '{':'}', '?':':'},
-              sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                            non_sandwiches: set(qw('( [ { ? :')),
-                   opens: set(qw('( [ { ?')),                                                                          punct: set(qw('+ - * / % & | ^ ! ~ = < > ? : ; . ,')),
-          lvalue_assigns: set(qw('+= -= *= /= %= ^= &= |= <<= >>= >>>=')),                                      translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},
-          literal_binary: set(qw('= , . : === !==')),                                                          literal_unary: set(qw('u++ u-- u!')),
+                   unary: set(qw('u++ u-- u+ u- u! u~ new typeof var case try finally throw case delete void import export')),  lvalue_assigns: set(qw('+= -= *= /= %= ^= &= |= <<= >>= >>>=')),
+            translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                            closers: {')':'(', ']':'[', '}':'{'},
+                   ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                          openers: set(qw('( [ { ?')),
+                   right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),                              punct: set(qw('+ - * / % & | ^ ! ~ = < > ? : ; . ,')),
+              sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                              non_sandwiches: set(qw('( [ { ? :')),
+          literal_binary: set(qw('= , . : === !==')),                                                                            literal_unary: set(qw('u++ u-- u!')),
+                   arity: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
 
-                    init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),                                              arity: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn (r),
+                    init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
 
   Incremental parsing.
   As tokens are read from the lexer they are written into a parse tree. Unlike a traditional grammar with productions, this parse tree works in terms of operators and values. Each element in
@@ -353,15 +354,26 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   the minimal-effort solution is to replace the first 'in' in a for-loop with a sentinel that takes very low precedence. ('=' isn't a problem, since its precedence is already suitably low and
   we don't override it in any case.)
 
-                  syntax: '@parent = $0, @op = $1, @xs = $2 || []'.type ({push_value: '@xs.length < $0.arity($1) ? (@xs.push($1), $1) : ("The token " + $1 + " is one too many.").fail()'.fn(),
-                                                                             push_op: '@op ? @push_value($0.syntax($_, $1)) : (@op = $1, $_)'.fn(r),
-                                                                           pop_value: '@xs.length ? @xs.pop() : @parent.pop_value()'.fn()}),
+  The mechanics of this parser are fairly simple. We build a tree incrementally and include explicit nodes for parentheses (the role of these nodes will become apparent). Starting with the
+  root node, which has no particular identity, we add expressions and operators to this tree. The rules for this are:
+
+    | 1. When we add an expression to a tree, it is just added to the operand list. This will throw an error if there are too many operands.
+    | 2. When we add an operator to a tree, we check the precedence. If the new operator binds first, then it is added as a child, given a value, and returned. Otherwise we add it to the
+         parent.
+
+                  syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.type ({
+                           is_value: '@xs.length >= $0.arity(@op)'.fn(r),
+                         push_value: '! @is_value() ? (@xs.push($1), $1) : ("The token " + $1 + " is one too many.").fail()'.fn(r),
+                            push_op: '$0.precedence[$1] - !! $0.right[$1] < $0.precedence[@op] ? @push_value($0.syntax($_, $1, [@xs.pop()])) : @hand_to_parent($1)'.fn(r),
+                     hand_to_parent: '@parent ? @parent.push_op($0) : "Syntax trees should have a minimal-precedence container".fail()'.fn(),
+                                top: '@parent ? @parent.top() : $_'.fn(),
+                           toString: '"(" + @op + " " + @xs.join(" ") + ")"'.fn()}),
 
   Lexing.
   The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
   logic with a expect_re flag that indicates whether the last token processed was an operator (if so, then we're expecting an operand and the next / delineates a regular expression).
 
-                   parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, es = [r.syntax()], openers = [], c = s.charAt.bind (s);
+                   parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = r.syntax(null, '('), c = s.charAt.bind (s), openers = [];
                           while (i < l && ($_ = c(i))) {
           escaped = !! (token = '');
                if                                (/\s/.test ($_))                                                          ++i;
@@ -378,14 +390,13 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
           if (! token) continue;
 
-               if ('(['.indexOf (token) > -1 && last(es).is_value ()) es[es.length - 1] = last(es).verb (token + '!'), es.push (syntax()), openers.push (token);
-          else if                                    (r.opens[token]) es.push (syntax().verb(token).value(syntax())), openers.push (token);
-          else if            (token === ':' && last(openers) === '?') $ = es.pop().top().xs, es[es.length - 1] = last(es).verb (openers.pop ()).values ($);
-          else if                   (token === r.pair[last(openers)]) $ = es.pop().top(),    es[es.length - 1] = last(es).value ($), openers.pop ();
-          else if                               (r.precedence[token]) es[es.length - 1] = last(es).verb  (token);
-          else                                                        es[es.length - 1] = last(es).value (token)}
-                          return es.pop().top()}})}) ();
-__VWOLC0I5H3RzSHgqpnQ//dWDYbpi+IgN0xZUxG0JHjI
+               if     (t.is_value() && '[('.indexOf (token) > -1)                       t = t.push_op (token + '!');
+          else if ($_ = r.closers[token] && last(openers) === $_)  {while (t.op !== $_) t = t.parent; openers.pop()}
+          else if                              (r.openers[token])                       t = t.push_value (r.syntax (t, token)), openers.push (token);
+          else if                           (r.precedence[token])                       t = t.push_op (token);
+          else                                                                          t.push_value (token);
+                          return t.top()}}})}) ();
+__SzToIBhZlyHrkuFrpvfx2BZ9JSHz5TknlSxakbtRDSQ
 
 meta::code('test', <<'__z3vQ7pgrMYhgPqQ8wbo7y9zmtsDm46EnOx+XSJkRNX8');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
