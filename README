@@ -15,6 +15,23 @@ between two binary operators, will become part of those operators. For example:
 
 You can overload these operators in exactly the same way.
 
+You can also rebase expressions, just like eval:
+
+  d.rebase ('[1, 2, 3] << 4')   // => [1, 2, 3, 4]
+
+However, these expressions don't close over surrounding variables. The best way to achieve that is to
+preload a function:
+
+  d.rebase (function (x, y, z) { ... x y z ... }).fn (x, y, z);
+
+Note that you can't say it this way:
+
+  d.rebase ((function (x, y, z) { ... }).fn (x, y, z))
+
+because then you'd be rebasing the proxy function that fn() creates. Instead, you have to rebase the
+original and proxy the result with the preloaded arguments. (See the Divergence documentation if this
+usage of fn() seems unfamiliar.)
+
 Caveats:
 
   1. Method calls are a lot slower than operators, so Rebase will slow your code down by quite a bit.
