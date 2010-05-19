@@ -36,11 +36,15 @@
            lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                             literal: set(qw('u-- u++ = (! [! . , ? ( [ === !== ; :')),
           should_convert: '! ($0.literal[$1] || $0.unary[$1] || $0.prefix_binary[$1])'.fn(r),
                   macros: ['$1 && $0.lvalue_assign[$1.op] ? $0.syntax(null, "=", [$1.xs[0], $0.syntax(null, $1.op.substring(0, $1.op.length - 1), $1.xs)]) : $1'.fn(r),
-                            function (e) {
+  function (e) {
   return e && (r.sandwich_ops[e.op] ? e.xs[1] && e.xs[1].op && r.sandwich_ops[e.xs[1].op] && r.sandwiches[e.xs[1].xs[0]] ? r.syntax(e.parent, e.op + e.xs[1].xs[0] + e.xs[1].op, [e.xs[0], e.xs[1].xs[1]]) :
                                       e.xs[0] && e.xs[0].op && r.sandwich_ops[e.xs[0].op] && r.sandwiches[e.xs[0].xs[1]] ? r.syntax(e.parent, e.xs[0].op + e.xs[0].xs[1] + e.op, [e.xs[0].xs[0], e.xs[1]]) :
                                       e : e)},
-                            function (e) {
+  function (e) {
+  return e && e.op && e.op === '>$>' ? r.syntax(e.parent, 'function').with_node (e.xs[0].op === '(' ? e.xs[0] : r.syntax (null, '(', [e.xs[0]])).
+                                                                      with_node (r.syntax (null, '{').with_node (r.syntax (null, 'return').with_node (e.xs[1]))) : e},
+
+  function (e) {
   return e && e.xs && r.should_convert (e.op) ? r.syntax(e.parent, "(!").with_node(r.syntax(null, "[!", [e.xs[0], '["' + e.op + '"]'])).with_node(r.syntax(null, '(', [e.xs[1]])) : e}],
 
                     init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
