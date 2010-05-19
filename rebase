@@ -296,7 +296,7 @@ var d = (function () {
   return d}) ();
 __hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-meta::code('main', <<'__8kVt33ClkTv5o8umWs4iAXvrzmwNnHn2dTCA3DfCkuM');
+meta::code('main', <<'__2xpbE2tYqjVfpT+PAnJfLlMKtFxLfdwt14ylO83ylQs');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -335,11 +335,15 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
            lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                             literal: set(qw('u-- u++ = (! [! . , ? ( [ === !== ; :')),
           should_convert: '! ($0.literal[$1] || $0.unary[$1] || $0.prefix_binary[$1])'.fn(r),
                   macros: ['$1 && $0.lvalue_assign[$1.op] ? $0.syntax(null, "=", [$1.xs[0], $0.syntax(null, $1.op.substring(0, $1.op.length - 1), $1.xs)]) : $1'.fn(r),
-                            function (e) {
+  function (e) {
   return e && (r.sandwich_ops[e.op] ? e.xs[1] && e.xs[1].op && r.sandwich_ops[e.xs[1].op] && r.sandwiches[e.xs[1].xs[0]] ? r.syntax(e.parent, e.op + e.xs[1].xs[0] + e.xs[1].op, [e.xs[0], e.xs[1].xs[1]]) :
                                       e.xs[0] && e.xs[0].op && r.sandwich_ops[e.xs[0].op] && r.sandwiches[e.xs[0].xs[1]] ? r.syntax(e.parent, e.xs[0].op + e.xs[0].xs[1] + e.op, [e.xs[0].xs[0], e.xs[1]]) :
                                       e : e)},
-                            function (e) {
+  function (e) {
+  return e && e.op && e.op === '>$>' ? r.syntax(e.parent, 'function').with_node (e.xs[0].op === '(' ? e.xs[0] : r.syntax (null, '(', [e.xs[0]])).
+                                                                      with_node (r.syntax (null, '{').with_node (r.syntax (null, 'return').with_node (e.xs[1]))) : e},
+
+  function (e) {
   return e && e.xs && r.should_convert (e.op) ? r.syntax(e.parent, "(!").with_node(r.syntax(null, "[!", [e.xs[0], '["' + e.op + '"]'])).with_node(r.syntax(null, '(', [e.xs[1]])) : e}],
 
                     init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
@@ -426,9 +430,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else                                                                            t.push_value (token);
                           }
                           return t.top()}})}) ();
-__8kVt33ClkTv5o8umWs4iAXvrzmwNnHn2dTCA3DfCkuM
+__2xpbE2tYqjVfpT+PAnJfLlMKtFxLfdwt14ylO83ylQs
 
-meta::code('test', <<'__7kiWv/VIzspc+DZGMzUVlRdl8mHHU0BOh2hc0fV/BGM');
+meta::code('test', <<'__ExEYSm4XZk/BEUt3CXTj9MhQRp1IE0QaAxUdNFrfSkw');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -504,12 +508,15 @@ Parse tests.
   test ('{foo: "bar" ? "bif" : "baz", bar: "bif" || "baz"}');
   test ('[foo, bar, bif, baz]');
 
-  var f = d.rebase (function (x) {return x >$> 1});
-  print (f ({'>$>': function (y) {return y + 1}}));
+  var f = d.rebase (function (x) {return x >$>> 1});
+  print (f ({'>$>>': function (y) {return y + 1}}));
 
 ! Array.prototype['<<'] = function () {this.push.apply (this, arguments); return this};
   print (d.rebase (function (x) {return x << 4}) ([1, 2, 3]).toSource ());
-__7kiWv/VIzspc+DZGMzUVlRdl8mHHU0BOh2hc0fV/BGM
+
+! Number.prototype['+'] = function (y) {return this + y};
+  print (d.rebase (function (x) {return (y) >$> x + y}) (5) (6));
+__ExEYSm4XZk/BEUt3CXTj9MhQRp1IE0QaAxUdNFrfSkw
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.

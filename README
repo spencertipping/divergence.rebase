@@ -14,3 +14,14 @@ between two binary operators, will become part of those operators. For example:
   d.rebase (function (x) {return x >foo> y})    // => x['>foo>'](y)
 
 You can overload these operators in exactly the same way.
+
+Syntactic macros.
+Rebase also lets you transform the syntax tree in arbitrary ways. Any function in the d.rebase.macros
+array will be run on each syntax node. This lets you do a number of useful things, including inserting
+debugging information, tracing things, or coming up with new meanings for existing operators.
+
+One of the existing macros expands the operator >$> into a function. It is implemented like this:
+
+  function (e) {return e && e.op && e.op === '>$>' ? (e.op = 'function', e) : e}
+
+
