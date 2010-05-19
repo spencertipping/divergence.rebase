@@ -1,3 +1,6 @@
+Note: This project requires Divergence in order to work.
+See http://github.com/spencertipping/divergence to download.
+
 Rebase is a Divergence module that provides operator overloading and syntactic macros. For example:
 
   (function (x) {return x << 4}) ([1, 2, 3])            // Nothing useful
