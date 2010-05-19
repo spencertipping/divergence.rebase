@@ -428,7 +428,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                           return t.top()}})}) ();
 __8kVt33ClkTv5o8umWs4iAXvrzmwNnHn2dTCA3DfCkuM
 
-meta::code('test', <<'__pp87ORZpMOB8jRmvhgHg0ykpZGPKsOYX0w8EnERcF+I');
+meta::code('test', <<'__7kiWv/VIzspc+DZGMzUVlRdl8mHHU0BOh2hc0fV/BGM');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -506,7 +506,10 @@ Parse tests.
 
   var f = d.rebase (function (x) {return x >$> 1});
   print (f ({'>$>': function (y) {return y + 1}}));
-__pp87ORZpMOB8jRmvhgHg0ykpZGPKsOYX0w8EnERcF+I
+
+! Array.prototype['<<'] = function () {this.push.apply (this, arguments); return this};
+  print (d.rebase (function (x) {return x << 4}) ([1, 2, 3]).toSource ());
+__7kiWv/VIzspc+DZGMzUVlRdl8mHHU0BOh2hc0fV/BGM
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.
