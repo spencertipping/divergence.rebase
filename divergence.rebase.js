@@ -46,7 +46,6 @@
                               r.syntax(e.parent, 'function').with_node (e.xs[0].op === '(' ? e.xs[0] : r.syntax (null, '(', [e.xs[0]])).
                                                              with_node (r.syntax (null, '{').with_node (r.syntax (null, 'return').with_node (e.xs[1]))) :                              
                               e},
-
                             function (e) {return r.should_convert (e.op) ?
                               r.syntax(e.parent, "(!").with_node(r.syntax(null, "[!", [e.xs[0], '["' + e.op + '"]'])).with_node(r.syntax(null, '(', [e.xs[1]])) :
                               e}],

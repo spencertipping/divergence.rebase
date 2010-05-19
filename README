@@ -24,6 +24,10 @@ Caveats:
   4. Rebased functions aren't closures. They're re-evaluated at the global scope, which means that any
      closed-over variables will have to be passed in explicitly. However, all sub-functions inside a
      rebased function will close over variables within the rebased function's scope.
+  5. SpiderMonkey JS does aggressive constant-folding, including replacing certain arithmetic expressions
+     with NaN if it can determine that the types won't work out. In particular, this includes bit-shifting
+     by a string literal, for instance. So for reliable operation, you should use variables instead of
+     literals to avoid these issues.
 
 Rebase uses a series of functions installed on the prototypes of all standard types in order to mimic
 the default behavior. However, these functions will often have bugs; for example, boolean && and || will
