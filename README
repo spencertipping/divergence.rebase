@@ -18,14 +18,16 @@ You can overload these operators in exactly the same way.
 Caveats:
 
   1. Method calls are a lot slower than operators, so Rebase will slow your code down by quite a bit.
-  2. Using Rebase without overloading the right operators will cause lots of stuff to break! I haven't
-     yet written the compatibility interfacing required to fill in behavior for the predefined operators.
-  3. All of your postfix ++ and -- operators will be converted to prefix. This is totally a bug!
-  4. Statement-mode function definitions aren't allowed -- you have to use var f = function () ...
+  2. All of your postfix ++ and -- operators will be converted to prefix. This is totally a bug!
+  3. Statement-mode function definitions aren't allowed -- you have to use var f = function () ...
      instead of function f () ...
-  5. Rebased functions aren't closures. They're re-evaluated at the global scope, which means that any
+  4. Rebased functions aren't closures. They're re-evaluated at the global scope, which means that any
      closed-over variables will have to be passed in explicitly. However, all sub-functions inside a
      rebased function will close over variables within the rebased function's scope.
+
+Rebase uses a series of functions installed on the prototypes of all standard types in order to mimic
+the default behavior. However, these functions will often have bugs; for example, boolean && and || will
+behave incorrectly since the /this/ reference is boxed and thus never false.
 
 Syntactic macros.
 Rebase also lets you transform the syntax tree in arbitrary ways. Any function in the d.rebase.macros
