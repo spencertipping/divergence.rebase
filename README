@@ -47,8 +47,8 @@ Caveats:
      literals to avoid these issues.
 
 Rebase uses a series of functions installed on the prototypes of all standard types in order to mimic
-the default behavior. However, these functions will often have bugs; for example, boolean && and || will
-behave incorrectly since the /this/ reference is boxed and thus never false.
+the default behavior. Sometimes these functions will not quite behave the same way due to autoboxing;
+if you find such a case, let me know.
 
 Syntactic macros.
 Rebase also lets you transform the syntax tree in arbitrary ways. Any function in the d.rebase.macros

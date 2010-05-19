@@ -30,12 +30,12 @@
                            '?:':20, ';':21, '{':22, '(':22, '[':22},
 
                    unary: set(qw('u++ u-- u+ u- u! u~ new typeof var case try finally throw return case else delete void import export ( [ { ?:')),
-                   ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                            punct: set('+-*/%&|^!~=<>?:;.,'.split ('')),
-                   right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),                            openers: {'(':')', '[':']', '{':'}', '?':':'},
-              sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                                sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
-           prefix_binary: set(qw('if function catch for switch with')),                                                                closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
-            translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                           arity_of: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
-           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                             literal: set(qw('u-- u++ = (! [! . , ? ( [ === !== ; :')),
+                   ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                  punct: set('+-*/%&|^!~=<>?:;.,'.split ('')),
+                   right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u--')),                  openers: {'(':')', '[':']', '{':'}', '?':':'},
+              sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                      sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
+           prefix_binary: set(qw('if function catch for switch with')),                                                      closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
+            translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                 arity_of: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
+           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                   literal: set(qw('u-- u++ = (! [! . , ? ( [ === !== ; : && ||')),
           should_convert: '! ($0.literal[$1] || $0.unary[$1] || $0.prefix_binary[$1])'.fn(r),
                   macros: ['$1 && $0.lvalue_assign[$1.op] ? $0.syntax(null, "=", [$1.xs[0], $0.syntax(null, $1.op.substring(0, $1.op.length - 1), $1.xs)]) : $1'.fn(r),
                             function (e) {return r.sandwich_ops[e.op] ?
