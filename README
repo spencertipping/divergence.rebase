@@ -23,6 +23,9 @@ Caveats:
   3. All of your postfix ++ and -- operators will be converted to prefix. This is totally a bug!
   4. Statement-mode function definitions aren't allowed -- you have to use var f = function () ...
      instead of function f () ...
+  5. Rebased functions aren't closures. They're re-evaluated at the global scope, which means that any
+     closed-over variables will have to be passed in explicitly. However, all sub-functions inside a
+     rebased function will close over variables within the rebased function's scope.
 
 Syntactic macros.
 Rebase also lets you transform the syntax tree in arbitrary ways. Any function in the d.rebase.macros
