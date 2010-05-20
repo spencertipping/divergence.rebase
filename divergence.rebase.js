@@ -36,7 +36,7 @@
               sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                      sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
            prefix_binary: set(qw('if function catch for switch with')),                                                      closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
             translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                 arity_of: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
-           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                   literal: set(qw('= ++ -- u++ u-- (! [! . , ? ( { [ === !== ; : && ||')),
+           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                   literal: set(qw('= ++ -- u++ u-- (! [! . ?: , ? ( { [ === !== ; : && ||')),
           should_convert: '! ($0.literal[$1] || $0.syntactic[$1])'.fn(r),                                        implicit_assignment: set(qw('++ -- u++ u--')),
 
                     init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
