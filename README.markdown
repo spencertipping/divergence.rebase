@@ -7,31 +7,31 @@ Rebase is a Divergence module that provides operator overloading and syntactic m
 
 Consider this function:
 
-`(function (x) {return x << 4}) ([1, 2, 3])            // Nothing useful`
+    (function (x) {return x << 4}) ([1, 2, 3])            // Nothing useful
 
 To add an operator, you just set a member of the prototype:
 
-`Array.prototype['<<'] = function () {this.push.apply (this, arguments); return this};`
-`d.rebase (function (x) {return x << 4}) ([1, 2, 3])   // => [1, 2, 3, 4]`
+    Array.prototype['<<'] = function () {this.push.apply (this, arguments); return this};
+    d.rebase (function (x) {return x << 4}) ([1, 2, 3])   // => [1, 2, 3, 4]
 
 You can also create new operators using 'sandwich identifiers', which are identifiers that, when placed between two binary operators, will become part of those operators. For example:
 
-`d.rebase.sandwiches['foo'] = true;`
-`d.rebase (function (x) {return x >foo> y})    // => x['>foo>'](y)`
+    d.rebase.sandwiches['foo'] = true;
+    d.rebase (function (x) {return x >foo> y})    // => x['>foo>'](y)
 
 You can overload these operators in exactly the same way.
 
 You can also rebase expressions, just like eval:
 
-`d.rebase ('[1, 2, 3] << 4')   // => [1, 2, 3, 4]`
+    d.rebase ('[1, 2, 3] << 4')   // => [1, 2, 3, 4]
 
 However, these expressions don't close over surrounding variables. The best way to achieve that is to preload a function:
 
-`d.rebase (function (x, y, z) { ... x y z ... }).fn (x, y, z);`
+    d.rebase (function (x, y, z) { ... x y z ... }).fn (x, y, z);
 
 Note that you can't say it this way:
 
-`d.rebase ((function (x, y, z) { ... }).fn (x, y, z))`
+    d.rebase ((function (x, y, z) { ... }).fn (x, y, z))
 
 because then you'd be rebasing the proxy function that `fn()` creates. Instead, you have to rebase the original and proxy the result with the preloaded arguments. (See the Divergence documentation if this usage of `fn()` seems unfamiliar.)
 
