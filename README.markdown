@@ -11,13 +11,13 @@ Consider this function:
 
 To add an operator, you just set a member of the prototype:
 
-`Array.prototype['<<'] = function () {this.push.apply (this, arguments); return this};
- d.rebase (function (x) {return x << 4}) ([1, 2, 3])   // => [1, 2, 3, 4]`
+`Array.prototype['<<'] = function () {this.push.apply (this, arguments); return this};`
+`d.rebase (function (x) {return x << 4}) ([1, 2, 3])   // => [1, 2, 3, 4]`
 
 You can also create new operators using 'sandwich identifiers', which are identifiers that, when placed between two binary operators, will become part of those operators. For example:
 
-`d.rebase.sandwiches['foo'] = true;
- d.rebase (function (x) {return x >foo> y})    // => x['>foo>'](y)`
+`d.rebase.sandwiches['foo'] = true;`
+`d.rebase (function (x) {return x >foo> y})    // => x['>foo>'](y)`
 
 You can overload these operators in exactly the same way.
 
