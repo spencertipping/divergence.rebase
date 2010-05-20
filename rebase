@@ -296,7 +296,7 @@ var d = (function () {
   return d}) ();
 __hGYBDYdR+tjV4WPm6zypFUxriDMcVnBxk39Z2rxlSXk
 
-meta::code('main', <<'__2vHa/MM2JHufu3HQhTViFnaYbXkbvhw41+eKYAL1Fvk');
+meta::code('main', <<'__qnHByqlJzicTbQHa9H8dcirgmImoPYmaSHArFoFmXaM');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -359,10 +359,12 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
   logic with a expect_re flag that indicates whether the last token processed was an operator (if so, then we're expecting an operand and the next / delineates a regular expression).
 
-                   parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [];
+                   parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
+                                            row = 0, col = 0;
                           while (i < l && ($_ = c(i))) {
+          col += token.length;
           escaped = token = '';
-               if                                (/\s/.test ($_))                                                                        ++i;
+               if                   (' \n\r\t'.indexOf ($_) > -1)                                                                        ++i, ++col, row += $_ === '\n', col *= $_ !== '\n';
           else if                  ('([{?:}])'.indexOf ($_) > -1)                                                                        expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
           else if    ($_ === '/' && c(i + 1) === '*' && (i += 2))  while                  (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);
           else if                ($_ === '/' && c(i + 1) === '/')  while                        (($_ = c(++i)) !== '\n' && $_ !== '\r');
@@ -375,6 +377,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else                                                     while                                           (r.ident[$_ = c(i)])  expect_re = !! r.precedence[token += $_], ++i;
 
           if (! token) continue;
+          token.row = row, token.col = col;
 
                if          (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (token));
           else if (($_ = r.closers[token]) && last(openers).op === $_)  t = openers.pop().parent;
@@ -388,20 +391,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   Incremental parsing.
   As tokens are read from the lexer they are written into a parse tree. Unlike a traditional grammar with productions, this parse tree works in terms of operators and values. Each element in
   the text is considered to have a certain precedence and to comprise part of an expression. This leads to a weird model and a much more general grammar than JavaScript's, but this is
-  acceptable because we know that by the time we see the code it will be valid. The only problem is when we have nonlocal precedence alteration; one example of this is the 'in' keyword --
-  consider these two for loops:
-
-    | for (var i in foo = bar) {...}
-    | for (var i = 'some-key' in some_hash; ...) {...}
-
-  Despite being a pathological example, it demonstrates the nonlocality of the JavaScript grammar. We can't disambiguate these forms until we hit either '=' or 'in'. Once we do hit those
-  operators, the leftmost one has a precedence nearly as low as ';', since otherwise we would risk violating the lvalue. Unfortunately, cases like these require some context to parse
-  efficiently. However, rather than backtracking we can reflect the incremental refinement that we see when reading through the code; that is, upon looking at the 'for' we don't know which
-  type of for loop it is; but as we read more code we will find out. As long as we start with a general case and lazily refine, the parsing algorithm can remain O(n).
-
-  However, all this being said, my only goal here is to build an accurate operator-precedence structure. So we can ignore any nuances of the structure that make things difficult; in this case,
-  the minimal-effort solution is to replace the first 'in' in a for-loop with a sentinel that takes very low precedence. ('=' isn't a problem, since its precedence is already suitably low and
-  we don't override it in any case.)
+  acceptable because we know that by the time we see the code it will be valid.
 
   The mechanics of this parser are fairly simple. We build a tree incrementally and include explicit nodes for parentheses (the role of these nodes will become apparent). Starting with the
   root node, which has no particular identity, we add expressions and operators to this tree. The rules for this are:
@@ -465,7 +455,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
           function (e) {return r.should_convert (e.op) ?
             new r.syntax(e.parent, "(!").with_node(new r.syntax(null, "[!", [e.xs[0], '["' + e.op + '"]'])).with_node(new r.syntax(null, '(', [e.xs[1]])) : e}]})}) ();
-__2vHa/MM2JHufu3HQhTViFnaYbXkbvhw41+eKYAL1Fvk
+__qnHByqlJzicTbQHa9H8dcirgmImoPYmaSHArFoFmXaM
 
 meta::code('test', <<'__ZQv9/8whDKf/31R3pzfKHJCsH/QaP1aKCkSoiYgdDo8');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
