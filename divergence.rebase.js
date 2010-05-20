@@ -30,13 +30,13 @@
                            'with':19, 'else':19, '?:':20, ';':21, '{':22, '(':22, '[':22},
 
                    unary: set(qw('u++ u-- ++ -- u+ u- u! u~ new typeof var case try finally throw return case else delete void import export ( [ { ?:')),
-               syntactic: set(qw('case var if while for do switch return throw delete export import try catch finally void with else function')),
+               syntactic: set(qw('case var if while for do switch return throw delete export import try catch finally void with else function new typeof in instanceof')),
                    ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                  punct: set('+-*/%&|^!~=<>?:;.,'.split ('')),
                    right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u-- ++ --')),            openers: {'(':')', '[':']', '{':'}', '?':':'},
               sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                      sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
            prefix_binary: set(qw('if function catch for switch with')),                                                      closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
             translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                 arity_of: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
-           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                   literal: set(qw('= ++ -- u++ u-- (! [! . ?: , ? ( { [ === !== ; : && ||')),
+           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                   literal: set(qw('= ++ -- u++ u-- u- u+ u! u~ (! [! . ?: , ? ( { [ === !== ; : && ||')),
           should_convert: '! ($0.literal[$1] || $0.syntactic[$1])'.fn(r),                                        implicit_assignment: set(qw('++ -- u++ u--')),
 
                     init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
