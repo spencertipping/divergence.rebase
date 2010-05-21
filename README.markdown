@@ -45,6 +45,13 @@ Code can be protected from alteration as well. You do this by using the `literal
 
 In this case, the expression `3 << 4` will remain untransformed; that is, no macros will be run on it and no operator overloading will be performed. This can be useful for optimization.
 
+By default, Rebase won't transform the strings that Divergence promotes into functions. If you do want to use operator overloading and other macros inside these strings, however, you can:
+
+    [1, 2, 3].map ('((x, y) >$> x + y).fn($0)')         // Fails by default
+
+    d.rebase.enable_inline_macro();
+    [1, 2, 3].map ('((x, y) >$> x + y).fn($0)')         // Returns an array of functions
+
 Caveats:
 
 1. Method calls are a lot slower than operators, so Rebase will slow your code down by quite a bit.
