@@ -35,6 +35,16 @@ Note that you can't say it this way:
 
 because then you'd be rebasing the proxy function that `fn()` creates. Instead, you have to rebase the original and proxy the result with the preloaded arguments. (See the Divergence documentation if this usage of `fn()` seems unfamiliar.)
 
+Code can be protected from alteration as well. You do this by using the `literal` keyword:
+
+    d.rebase (function () {
+      [1, 2, 3] << 4;
+      var f = x >$> x + 1;
+      var y = literal (3 << 4);
+    });
+
+In this case, the expression `3 << 4` will remain untransformed; that is, no macros will be run on it and no operator overloading will be performed. This can be useful for optimization.
+
 Caveats:
 
 1. Method calls are a lot slower than operators, so Rebase will slow your code down by quite a bit.
