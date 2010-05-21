@@ -21,8 +21,6 @@
   var set            = '.fold({< $0[$1] = true, $0 >}, {})'.fn(),            last = '$0[$0.length - 1]'.fn(),  qw = '.split(/\\s+/)'.fn(),
         r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null,                       s = '$0 === undefined ? "" : $0.toString()'.fn();
 
-  d.functions (d.map (d.operators.binary.operators, function (k, v) {return v.maps_to (d.aliases[k + '_'])}));
-
   d.init (r, {precedence: {'function':1, '[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, '++':3, '--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4,
                            '+':5, '-':5, '<<':6, '>>':6, '>>>':6, '<':7, '>':7, '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12,
                            '||':13, '?':14, '=':15, '+=':15, '-=':15, '*=':15, '/=':15, '%=':15, '&=':15, '|=':15, '^=':15, '<<=':15, '>>=':15, '>>>=':15, 'case':16, ':':17, ',':18, 'var':19,
@@ -33,11 +31,11 @@
                syntactic: set(qw('case var if while for do switch return throw delete export import try catch finally void with else function new typeof in instanceof')),
                    ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                  punct: set('+-*/%&|^!~=<>?:;.,'.split ('')),
                    right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u-- ++ --')),            openers: {'(':')', '[':']', '{':'}', '?':':'},
-              sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),                                                      sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
+     implicit_assignment: set(qw('++ -- u++ u--')),                                                                       sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),
+                 literal: set(qw('= ++ -- u++ u-- u- u+ u! u~ (! [! . ?: , ? ( { [ === !== ; : && ||')),                sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
            prefix_binary: set(qw('if function catch for switch with')),                                                      closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
             translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                 arity_of: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
-           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                                   literal: set(qw('= ++ -- u++ u-- u- u+ u! u~ (! [! . ?: , ? ( { [ === !== ; : && ||')),
-          should_convert: '! ($0.literal[$1] || $0.syntactic[$1])'.fn(r),                                        implicit_assignment: set(qw('++ -- u++ u--')),
+           lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                            should_convert: '! ($0.literal[$1] || $0.syntactic[$1])'.fn(r),
 
                     init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
 
@@ -155,4 +153,16 @@
 //     [! will not be what you expect; rather, it will be a single string containing the text [">$$>"] (or some other operator).
 
           function (e) {return r.should_convert (e.op) ?
-            new r.syntax(e.parent, "(!").with_node(new r.syntax(null, "[!", [e.xs[0], '["' + e.op + '"]'])).with_node(new r.syntax(null, '(', [e.xs[1]])) : e}]})}) ();
+            new r.syntax(e.parent, "(!").with_node(new r.syntax(null, "[!", [e.xs[0], '["' + e.op + '"]'])).with_node(new r.syntax(null, '(', [e.xs[1]])) : e}]});
+
+//   Operator compatibility.
+//   We want to make sure that the default behavior of all normal operators is preserved. While we're at it we can give them typable names and form combinatory versions as well.
+
+  d.operators = {binary: {transforms: {'$0': '"$_" + $0 + "$0"', '$0 + "_fn"': '"{|t, x| t.apply($_,@_)" + $0 + "x.apply($_,@_)|}.fn($_.fn(), $0.fn())"'},
+                           operators: {plus:'+', minus:'-', times:'*', over:'/', modulo:'%', lt:'<', gt:'>', le:'<=', ge:'>=', eq:'==', ne:'!=', req:'===', rne:'!==', and:'&&', or:'||', xor:'^',
+                                       bitand:'&', bitor:'|', then:',', lshift: '<<', rshift: '>>', rushift: '>>>'}},
+                  unary: {transforms: {'$0': '$0 + "$_"', '$0 + "_fn"': '"{|f| " + $0 + "f.fn.apply($_,@_)|}.fn($_.fn())"'},
+                           operators: {not:'!', notnot:'!!', complement:'~'}}};
+
+  d.map (d.operators, function (_, os) {
+    d.map (os.transforms, function (nt, vt) {d.functions (d.map (os.operators, function (n, v) {return d.init (nt.fn()(v).maps_to (vt.fn()(v).fn()), nt.fn()(n).maps_to (vt.fn()(v).fn()))}))})})}) ();
