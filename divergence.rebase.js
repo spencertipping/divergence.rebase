@@ -60,11 +60,18 @@
 //   logic with a expect_re flag that indicates whether the last token processed was an operator (if so, then we're expecting an operand and the next / delineates a regular expression).
 
                    parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
-                                            row = 0, col = 0;
+                                            line_breaks = s.split('\n'),
+                                            position = function (j) {var jump = line_breaks.length, l = 0;
+                                                                     while (jump >>= 1) l >= line_breaks[l + jump] && (l += jump);
+                                                                     return {line: l + 1, character: line_breaks[l] - j}};
+
+                          for (var j = 0, lj = line_breaks.length, total = 0; j < lj; ++j) line_breaks[j] = total += line_breaks[j] + 1;
+
                           while (i < l && ($_ = c(i))) {
-          col += token.length;
           escaped = token = '';
-               if                   (' \n\r\t'.indexOf ($_) > -1)                                                                        ++i, ++col, row += $_ === '\n', col *= $_ !== '\n';
+          t.position_at (i);
+
+               if                   (' \n\r\t'.indexOf ($_) > -1)                                                                        ++i;
           else if                  ('([{?:}])'.indexOf ($_) > -1)                                                                        expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
           else if    ($_ === '/' && c(i + 1) === '*' && (i += 2))  while                  (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);
           else if                ($_ === '/' && c(i + 1) === '/')  while                        (($_ = c(++i)) !== '\n' && $_ !== '\r');
@@ -76,8 +83,8 @@
           else if                                   (r.punct[$_])  while               (r.punct[$_ = c(i)] && r.precedence[token + $_])  expect_re = !! (token += $_), ++i;
           else                                                     while                                           (r.ident[$_ = c(i)])  expect_re = !! r.precedence[token += $_], ++i;
 
-          if (! token) continue;
-          token.row = row, token.col = col;
+               if                                            (! token)  continue;
+               if          (! t.is_value() && token.charAt(0) === 'u')  token = token.substring (1);    // Workaround for postfix ++ and --
 
                if          (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (token));
           else if (($_ = r.closers[token]) && last(openers).op === $_)  t = openers.pop().parent;
@@ -103,6 +110,7 @@
                   syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.ctor ({
                            is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
                          push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many for the tree " + @toString() + ".").fail()'.fn(),
+                        position_at: '@position || (@position = $1), $_'.fn(),
                           with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
                             push_op: '$0.precedence[$1] - !! $0.right[$1] < $0.precedence[@op] ? @graft($1) : @hand_to_parent($1)'.fn(r),
                               graft: '@push_value(@is_value() ? new $0.syntax($_, $1).with_node(@xs.pop()) : new $0.syntax($_, $1))'.fn(r),
