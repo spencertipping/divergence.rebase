@@ -163,7 +163,6 @@ var d = (function () {
 
           expect_re && token.charAt(0) === 'u' || (token = s.substring (mark, i));
           token in {} && (token = '@' + token);
-          ! t.is_value() && (token === 'u++' || token === 'u--') && (token = token.substring (1));    // Workaround for postfix ++ and --
 
                if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
           else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && (t = t.push_op(';'));

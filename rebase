@@ -282,7 +282,7 @@ var d = (function () {
 
 __mAHhpP5JgWM51xZULH78ZjhNMuls84Ek6tMtnqKJqRA
 
-meta::code('main', <<'__FP0mdbY7/4cNCo2dk29hz6gOKcYNWWnIGlumq2gN4ng');
+meta::code('main', <<'__VYLo7yby2VZOZBEOjL/b2XGNsVvwIcsCwVta8wqsGcg');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -381,7 +381,6 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
           expect_re && token.charAt(0) === 'u' || (token = s.substring (mark, i));
           token in {} && (token = '@' + token);
-          ! t.is_value() && (token === 'u++' || token === 'u--') && (token = token.substring (1));    // Workaround for postfix ++ and --
 
                if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
           else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && (t = t.push_op(';'));
@@ -486,7 +485,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__FP0mdbY7/4cNCo2dk29hz6gOKcYNWWnIGlumq2gN4ng
+__VYLo7yby2VZOZBEOjL/b2XGNsVvwIcsCwVta8wqsGcg
 
 meta::code('test', <<'__asYRKWNbGKIAR55VXF55q5DOzC4aPpPmh6IWquFZt0A');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
