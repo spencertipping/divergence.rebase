@@ -52,7 +52,7 @@
 
                transform: function (t) {if (t && t.op == '(!' && t.xs[0] == 'literal') return t.xs[1];
                                         var mapped = r.macros.fold ('$1($0) || $0', t);
-                                        mapped && mapped.xs && (mapped.xs = mapped.xs.map ('$1 && $1.op ? $0($1) : $1'.fn (r.transform)));
+                                        mapped && mapped.xs && (mapped.xs = mapped.xs.map ('$1 ? $0($1) : $1'.fn (r.transform)));
                                         return mapped},
 
 //   Lexing.
@@ -141,13 +141,13 @@
 //     Since the left-hand side of +=, -=, etc. must be an lvalue, we can't say something like x['+='](y) and expect anything useful. So instead of overloading the operator, we just replace it with
 //     the longhand x = x + y, and let the '+' operator get replaced by the method call.
 
-          function (e) {return r.lvalue_assign[e.op] ? new r.syntax(null, "=", [e.xs[0], new r.syntax(null, e.op.substring(0, e.op.length - 1), e.xs)]) : e},
+          function (e) {return e.xs && r.lvalue_assign[e.op] ? new r.syntax(null, "=", [e.xs[0], new r.syntax(null, e.op.substring(0, e.op.length - 1), e.xs)]) : e},
 
 //     Identifier sandwiching.
 //     Certain identifiers can be sandwiched into binary operators as if they were part of the operator name. Most binary operators are candidates for sandwiching, and several identifiers are
 //     included by default (see the sandwiches hash above). This could be optimized by using in-place rewriting, but using sandwich operators is not terribly common.
 
-          function (e) {return r.sandwich_ops[e.op] ?
+          function (e) {return e.xs && r.sandwich_ops[e.op] ?
             e.xs[1] && e.xs[1].op && r.sandwich_ops[e.xs[1].op] && r.sandwiches[e.xs[1].xs[0]] ? new r.syntax(e.parent, e.op + e.xs[1].xs[0] + e.xs[1].op, [e.xs[0], e.xs[1].xs[1]]) :
             e.xs[0] && e.xs[0].op && r.sandwich_ops[e.xs[0].op] && r.sandwiches[e.xs[0].xs[1]] ? new r.syntax(e.parent, e.xs[0].op + e.xs[0].xs[1] + e.op, [e.xs[0].xs[0], e.xs[1]]) :
             e : e},
@@ -164,12 +164,19 @@
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
 
+//     Comments.
+//     Structural comments can be useful for removing chunks of code or for getting comments through SpiderMonkey's parse-deparse cycle (SpiderMonkey, and perhaps other JS interpreters, removes
+//     comments between evaling and serializing a function). Either way, the syntax is just like literal(), except that the result will be replaced with the value 'undefined' instead of evaluated
+//     normally.
+
+          function (e) {return e.op == '(!' && e.xs && e.xs[0] == 'comment' ? 'undefined' : e},
+
 //     Operator overloading.
 //     Once we're done with all of the preprocessing we can actually replace the operators with method calls. I'm cheating just a bit here; normally you would encase the operation inside a [ node
 //     after wrapping it as a string. However, I'm being lazy and making the excuse that maybe later on you want to detect proper method calls from generated ones; so the right-hand side of the
 //     [! will not be what you expect; rather, it will be a single string containing the text [">$$>"] (or some other operator).
 
-          function (e) {return r.should_convert (e.op) ?
+          function (e) {return e.op && r.should_convert (e.op) ?
             new r.syntax(e.parent, "(!").with_node(new r.syntax(null, "[!", [e.xs[0], '["' + e.op + '"]'])).with_node(new r.syntax(null, '(', [e.xs[1]])) : e}]});
 
 //   Operator compatibility.
