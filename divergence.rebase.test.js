@@ -165,9 +165,8 @@ var d = (function () {
           token in {} && (token = '@' + token);
           ! t.is_value() && (token === 'u++' || token === 'u--') && (token = token.substring (1));    // Workaround for postfix ++ and --
 
-               if                (t.is_value() && r.statement[token])  t = t.push_op(';').push_op (located_token());
-          else if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
-          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent;
+               if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
+          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && (t = t.push_op(';'));
           else if                                     (token === '?')  openers.push (t = t.push_op (located_token()).graft ('?:'));
           else if                                  (r.openers[token])  openers.push (t = t.graft (located_token()));
           else if                                 (precedence[token])  t = t.push_op (located_token());
@@ -433,3 +432,8 @@ var d = (function () {
     while (x > 5) --x;
     return x;
   }).toString())) (10));
+
+  print (d.rebase (d.trace ((function (x) {
+    while (x > 5) --x;
+    ++x;
+  }).toString())));

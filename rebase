@@ -282,7 +282,7 @@ var d = (function () {
 
 __mAHhpP5JgWM51xZULH78ZjhNMuls84Ek6tMtnqKJqRA
 
-meta::code('main', <<'__16dv7w0zB1h9tAdgZtrVYmlQKDbQ+xEL/TrrZaNq1zA');
+meta::code('main', <<'__FP0mdbY7/4cNCo2dk29hz6gOKcYNWWnIGlumq2gN4ng');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -383,9 +383,8 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           token in {} && (token = '@' + token);
           ! t.is_value() && (token === 'u++' || token === 'u--') && (token = token.substring (1));    // Workaround for postfix ++ and --
 
-               if                (t.is_value() && r.statement[token])  t = t.push_op(';').push_op (located_token());
-          else if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
-          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent;
+               if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
+          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && (t = t.push_op(';'));
           else if                                     (token === '?')  openers.push (t = t.push_op (located_token()).graft ('?:'));
           else if                                  (r.openers[token])  openers.push (t = t.graft (located_token()));
           else if                                 (precedence[token])  t = t.push_op (located_token());
@@ -487,9 +486,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__16dv7w0zB1h9tAdgZtrVYmlQKDbQ+xEL/TrrZaNq1zA
+__FP0mdbY7/4cNCo2dk29hz6gOKcYNWWnIGlumq2gN4ng
 
-meta::code('test', <<'__oQKwKzULyXhDFWyPQmgmkLfHI5h5oTkxSBuz0vXr9gE');
+meta::code('test', <<'__asYRKWNbGKIAR55VXF55q5DOzC4aPpPmh6IWquFZt0A');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -650,7 +649,12 @@ Parse tests.
     while (x > 5) --x;
     return x;
   }).toString())) (10));
-__oQKwKzULyXhDFWyPQmgmkLfHI5h5oTkxSBuz0vXr9gE
+
+  print (d.rebase (d.trace ((function (x) {
+    while (x > 5) --x;
+    ++x;
+  }).toString())));
+__asYRKWNbGKIAR55VXF55q5DOzC4aPpPmh6IWquFZt0A
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.
