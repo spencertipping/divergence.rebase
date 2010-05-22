@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <script src='../divergence.js'></script>
+    <script src='../divergence.rebase.js'></script>
+
+    <style>
+    #onebyone {font-family: monospace}
+    #output   {font-family: monospace}
+    div       {color: #ccc; font-weight: bold}
+    div:hover {color: black; font-weight: bold; z-index: 1}
+    </style>
+
+    <script>
+      var df = '$0[$1].bind($0)'.fn(document),
+           c = df('createElement'),
+           g = df('getElementById'),
+           t = df('createTextNode');
+
+      var process = function () {
+        var w = g('onebyone').offsetWidth,
+            h = g('onebyone').offsetHeight,
+            i = g('input'),
+            o = g('output'),
+            f = function (x) {return x && x.xs ? [x].concat (x.op ? [x.op] : []).concat (x.xs.flat_map (f)) : x ? [x] : []};
+        
+        o.innerHTML = '';
+        f (d.rebase.parse (i.value)).grep ('.line').map (function (x) {
+          return d.init (c('div'), 'd(@style, {left: $0 + "px", top: $1 + "px", position: "absolute"})'.fn(x.character * w, x.line * h),
+                                   '@appendChild($0)'.fn(t(x.toString())))}).each (o.appendChild.bind (o));
+      };
+
+      window.onload = process;
+    </script>
+  </head>
+
+  <body>
+    <span id='onebyone'>m</span>
+    <div>
+      <textarea id='input' cols='80' rows='8'>function (x, y, z) {var foo = bar; foo += 6}</textarea>
+      <button onclick='process()'>Run</button>
+    </div>
+    <div id='output' style='position:relative'></div>
+  </body>
+</html>
