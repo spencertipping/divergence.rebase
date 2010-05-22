@@ -83,8 +83,8 @@
           else if                                   (r.punct[$_])  while               (r.punct[$_ = c(i)] && r.precedence[token + $_])  expect_re = !! (token += $_), ++i;
           else                                                     while                                           (r.ident[$_ = c(i)])  expect_re = !! r.precedence[token += $_], ++i;
 
-               if                                            (! token)  continue;
-               if          (! t.is_value() && token.charAt(0) === 'u')  token = token.substring (1);    // Workaround for postfix ++ and --
+               if                                                (! token)  continue;
+               if (! t.is_value() && (token === 'u++' || token === 'u--'))  token = token.substring (1);    // Workaround for postfix ++ and --
 
                if          (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (token));
           else if (($_ = r.closers[token]) && last(openers).op === $_)  t = openers.pop().parent;
@@ -110,7 +110,7 @@
                   syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.ctor ({
                            is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
                          push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many for the tree " + @toString() + ".").fail()'.fn(),
-                        position_at: '@position || (@position = $1), $_'.fn(),
+                        position_at: '@position || (@position = $0), $_'.fn(),
                           with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
                             push_op: '$0.precedence[$1] - !! $0.right[$1] < $0.precedence[@op] ? @graft($1) : @hand_to_parent($1)'.fn(r),
                               graft: '@push_value(@is_value() ? new $0.syntax($_, $1).with_node(@xs.pop()) : new $0.syntax($_, $1))'.fn(r),
