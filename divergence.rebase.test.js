@@ -167,7 +167,7 @@ var d = (function () {
           token in {} && (token = '@' + token);
 
                if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
-          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && (t = t.push_op(';'));
+          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && token != 'else' && (t = t.push_op(';'));
           else if                                     (token === '?')  openers.push (t = t.push_op (located_token()).graft ('?:'));
           else if                                  (r.openers[token])  openers.push (t = t.graft (located_token()));
           else if                                 (precedence[token])  t = t.push_op (located_token());
@@ -198,6 +198,7 @@ var d = (function () {
                                 top: '@parent ? @parent.top() : $_'.fn(),
                            toString:  function () {return '([{'.indexOf(this.op) > -1 ? this.op + s(this.xs[0]) + r.openers[this.op] :
                                                                       this.op ==  '?' ? s(this.xs[0]) + ' ? ' + s(this.xs[1].xs[0]) + ' : ' + s(this.xs[2]) :
+                             this.op ==  ';' && this.xs[1] && this.xs[1].op == 'else' ? s(this.xs[0]) + ' ' + s(this.xs[1]) :
                                                    this.op == '(!' || this.op == '[!' ? s(this.xs[0]) + s(this.xs[1]) :
                                                        r.implicit_assignment[this.op] ? '(' + (this.op.charAt(0) === 'u' ? this.op.substring(1) + s(this.xs[0]) : s(this.xs[0]) + this.op) + ')' :
                                                                      r.unary[this.op] ? (r.translations[this.op] || this.op) + ' ' + s(this.xs[0]) :
@@ -455,3 +456,8 @@ var d = (function () {
 
   print (d.rebase (function () {return [1, 2, 3] * (x >$> x + 1)}) ());
   print (d.rebase (function () {return [1, 2, 3] >>$- (x >$> [x, x + 1])}) ());
+
+// If Rebase is actually working correctly, then this should be fine (though it loses closure state, so we define r here):
+
+  var r = d.rebase;
+  d.rebase (d.rebase.parse);
