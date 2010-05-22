@@ -31,6 +31,7 @@
                    unary: set(qw('u++ u-- ++ -- u+ u- u! u~ new typeof var case try finally throw return case else delete void import export ( [ { ?:')),
                syntactic: set(qw('case var if while for do switch return throw delete export import try catch finally void with else function new typeof in instanceof')),
                statement: set(qw('case var if while for do switch return throw delete export import try catch finally void with else')),
+               connected: {'else': set(qw('if')), 'catch': set(qw('try')), 'finally': set(qw('try catch')), 'while': set(qw('do'))},
                    ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                  punct: set('+-*/%&|^!~=<>?:;.,'.split ('')),
                    right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u-- ++ --')),            openers: {'(':')', '[':']', '{':'}', '?':':'},
      implicit_assignment: set(qw('++ -- u++ u--')),                                                                       sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),
@@ -131,7 +132,8 @@
                                 top: '@parent ? @parent.top() : $_'.fn(),
                            toString:  function () {return '([{'.indexOf(this.op) > -1 ? this.op + s(this.xs[0]) + r.openers[this.op] :
                                                                       this.op ==  '?' ? s(this.xs[0]) + ' ? ' + s(this.xs[1].xs[0]) + ' : ' + s(this.xs[2]) :
-                             this.op ==  ';' && this.xs[1] && this.xs[1].op == 'else' ? s(this.xs[0]) + ' ' + s(this.xs[1]) :
+                                      this.op ==  ';' && this.xs[0] && this.xs[1] && 
+              r.connected[this.xs[1].op] && r.connected[this.xs[1].op][this.xs[0].op] ? s(this.xs[0]) + ' ' + s(this.xs[1]) :
                                                    this.op == '(!' || this.op == '[!' ? s(this.xs[0]) + s(this.xs[1]) :
                                                        r.implicit_assignment[this.op] ? '(' + (this.op.charAt(0) === 'u' ? this.op.substring(1) + s(this.xs[0]) : s(this.xs[0]) + this.op) + ')' :
                                                                      r.unary[this.op] ? (r.translations[this.op] || this.op) + ' ' + s(this.xs[0]) :

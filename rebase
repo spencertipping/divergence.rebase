@@ -282,7 +282,7 @@ var d = (function () {
 
 __mAHhpP5JgWM51xZULH78ZjhNMuls84Ek6tMtnqKJqRA
 
-meta::code('main', <<'__foxZjXyvLA9DzWx46YeUzdke4cMef3Yo5u7V76pk2Os');
+meta::code('main', <<'__GnoaQrab3EQ97S8glWcL9bD7hpREeCM1BBmvltEU360');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -316,6 +316,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                    unary: set(qw('u++ u-- ++ -- u+ u- u! u~ new typeof var case try finally throw return case else delete void import export ( [ { ?:')),
                syntactic: set(qw('case var if while for do switch return throw delete export import try catch finally void with else function new typeof in instanceof')),
                statement: set(qw('case var if while for do switch return throw delete export import try catch finally void with else')),
+               connected: {'else': set(qw('if')), 'catch': set(qw('try')), 'finally': set(qw('try catch')), 'while': set(qw('do'))},
                    ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                  punct: set('+-*/%&|^!~=<>?:;.,'.split ('')),
                    right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u-- ++ --')),            openers: {'(':')', '[':']', '{':'}', '?':':'},
      implicit_assignment: set(qw('++ -- u++ u--')),                                                                       sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),
@@ -416,7 +417,8 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                                 top: '@parent ? @parent.top() : $_'.fn(),
                            toString:  function () {return '([{'.indexOf(this.op) > -1 ? this.op + s(this.xs[0]) + r.openers[this.op] :
                                                                       this.op ==  '?' ? s(this.xs[0]) + ' ? ' + s(this.xs[1].xs[0]) + ' : ' + s(this.xs[2]) :
-                             this.op ==  ';' && this.xs[1] && this.xs[1].op == 'else' ? s(this.xs[0]) + ' ' + s(this.xs[1]) :
+                                      this.op ==  ';' && this.xs[0] && this.xs[1] && 
+              r.connected[this.xs[1].op] && r.connected[this.xs[1].op][this.xs[0].op] ? s(this.xs[0]) + ' ' + s(this.xs[1]) :
                                                    this.op == '(!' || this.op == '[!' ? s(this.xs[0]) + s(this.xs[1]) :
                                                        r.implicit_assignment[this.op] ? '(' + (this.op.charAt(0) === 'u' ? this.op.substring(1) + s(this.xs[0]) : s(this.xs[0]) + this.op) + ')' :
                                                                      r.unary[this.op] ? (r.translations[this.op] || this.op) + ' ' + s(this.xs[0]) :
@@ -502,9 +504,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__foxZjXyvLA9DzWx46YeUzdke4cMef3Yo5u7V76pk2Os
+__GnoaQrab3EQ97S8glWcL9bD7hpREeCM1BBmvltEU360
 
-meta::code('test', <<'__6yd7nXmzGdFuRP8D/2FMjzG3PjxiiFjcODCSAGeyVpo');
+meta::code('test', <<'__FWHNsYkV5opOl+iFJSG8FqyD3pzxfXnTPwn5zC78hrI');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -514,6 +516,14 @@ Licensed under the terms of the MIT source code license
 
   d.tracer = print;
   d.rebase.trace = d.trace;
+
+If Rebase is actually working correctly, then this should be fine:
+
+  d.rebase (function () {
+
+:: get main
+
+  }) ();
 
 Parse tests.
 
@@ -673,12 +683,7 @@ Parse tests.
 
   print (d.rebase (function () {return [1, 2, 3] * (x >$> x + 1)}) ());
   print (d.rebase (function () {return [1, 2, 3] >>$- (x >$> [x, x + 1])}) ());
-
-If Rebase is actually working correctly, then this should be fine (though it loses closure state, so we define r here):
-
-  var r = d.rebase;
-  d.rebase (d.rebase.parse);
-__6yd7nXmzGdFuRP8D/2FMjzG3PjxiiFjcODCSAGeyVpo
+__FWHNsYkV5opOl+iFJSG8FqyD3pzxfXnTPwn5zC78hrI
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.
