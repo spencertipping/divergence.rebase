@@ -282,7 +282,7 @@ var d = (function () {
 
 __mAHhpP5JgWM51xZULH78ZjhNMuls84Ek6tMtnqKJqRA
 
-meta::code('main', <<'__p6APu1xK9h+wLTbxkf+GLqs6R3QMbtLbWOiAUn8CJtk');
+meta::code('main', <<'__5rQ/LsuJZNyWv0rQpCpKJBzdJ4fhOIJ3AZgdwVlukZE');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -323,6 +323,8 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
            prefix_binary: set(qw('if function catch for switch with while')),                                                closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
             translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                 arity_of: '$0.unary[$1] ? 1 : $1 == "?" ? 3 : 2'.fn(r),
            lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                            should_convert: '! ($0.literal[$1] || $0.syntactic[$1])'.fn(r),
+
+                alias_in: '$0.init ($1, $0.map ($2, {|h, k, v| k.maps_to (h[v] || v.fn()) |}.fn($1)))'.fn(d),
 
                     init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
 
@@ -405,6 +407,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
                   syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.ctor ({
                            is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
+                                map: 'new $0.syntax(null, @op, @xs.map($1).map({|t, x| x.parent = t, x |}.fn($_)))'.fn(r),
                          push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many for the tree " + $_ + " in the context " + $_.top() + ".").fail()'.fn(),
                           with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
                             push_op: '$0.precedence[$1] - !! ($0.right[$1] || $0.syntactic[$1]) < $0.precedence[@op] ? @graft($1) : @hand_to_parent($1)'.fn(r),
@@ -448,6 +451,14 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
       | (x, y) >$> x + 1        // valid
       | x, y >$> x + 1          // parses as x, (y >$> x + 1)
 
+    Note that you can't say this:
+
+      | () >$> something
+
+    The reason is that JavaScript's grammar forbids the use of () as an expression. To get around it, you can bind a throwaway variable:
+
+      | _ >$> something
+
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
 
@@ -479,7 +490,10 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   d.map (d.operators, function (_, os) {
     d.map (os.transforms, function (nt, vt) {d.functions (d.map (os.operators, function (n, v) {return d.init (nt.fn()(v).maps_to (vt.fn()(v).fn()), nt.fn()(n).maps_to (vt.fn()(v).fn()))}))})});
 
-  d.init (Array.prototype, d.map ({'*':'map', '%':'grep', '+':'concat', '/':'fold', '>>$-':'flat_map'}, '$1.maps_to($0[$2])'.fn(Array.prototype)), {'<<':'@push($0), $_'});
+  r.alias_in (Array.prototype, {'*':'map', '%':'grep', '+':'concat', '/':'fold', '>>$-':'flat_map'});
+              Array.prototype['<<'] = '@push($0), $_'.fn();
+
+  r.alias_in (r.syntax.prototype, {'<<':'with_node', '*':'map'});
 
   Divergence inline macro support.
   Divergence promotes strings into functions with a macro mechanism very similar to the one here. Because of this, we can enable code transformation inside those inline macros, including
@@ -487,9 +501,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__p6APu1xK9h+wLTbxkf+GLqs6R3QMbtLbWOiAUn8CJtk
+__5rQ/LsuJZNyWv0rQpCpKJBzdJ4fhOIJ3AZgdwVlukZE
 
-meta::code('test', <<'__X/r1UDk74aTMshwm5S8DNLa2kvoVo2nrpk987VufUpM');
+meta::code('test', <<'__anZz3VVSafNO2yVqbmXKb0p08xsGECUCeKrV/qBxykc');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -657,7 +671,8 @@ Parse tests.
   }).toString())));
 
   print (d.rebase (function () {return [1, 2, 3] * (x >$> x + 1)}) ());
-__X/r1UDk74aTMshwm5S8DNLa2kvoVo2nrpk987VufUpM
+  print (d.rebase (function () {return [1, 2, 3] >>$- (x >$> [x, x + 1])}) ());
+__anZz3VVSafNO2yVqbmXKb0p08xsGECUCeKrV/qBxykc
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.

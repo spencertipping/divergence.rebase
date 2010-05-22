@@ -106,6 +106,8 @@ var d = (function () {
             translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                 arity_of: '$0.unary[$1] ? 1 : $1 == "?" ? 3 : 2'.fn(r),
            lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                            should_convert: '! ($0.literal[$1] || $0.syntactic[$1])'.fn(r),
 
+                alias_in: '$0.init ($1, $0.map ($2, {|h, k, v| k.maps_to (h[v] || v.fn()) |}.fn($1)))'.fn(d),
+
                     init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
 
 //   Deparsing.
@@ -187,6 +189,7 @@ var d = (function () {
 
                   syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.ctor ({
                            is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
+                                map: 'new $0.syntax(null, @op, @xs.map($1).map({|t, x| x.parent = t, x |}.fn($_)))'.fn(r),
                          push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many for the tree " + $_ + " in the context " + $_.top() + ".").fail()'.fn(),
                           with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
                             push_op: '$0.precedence[$1] - !! ($0.right[$1] || $0.syntactic[$1]) < $0.precedence[@op] ? @graft($1) : @hand_to_parent($1)'.fn(r),
@@ -230,6 +233,14 @@ var d = (function () {
 //       | (x, y) >$> x + 1        // valid
 //       | x, y >$> x + 1          // parses as x, (y >$> x + 1)
 
+//     Note that you can't say this:
+
+//       | () >$> something
+
+//     The reason is that JavaScript's grammar forbids the use of () as an expression. To get around it, you can bind a throwaway variable:
+
+//       | _ >$> something
+
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
 
@@ -261,7 +272,10 @@ var d = (function () {
   d.map (d.operators, function (_, os) {
     d.map (os.transforms, function (nt, vt) {d.functions (d.map (os.operators, function (n, v) {return d.init (nt.fn()(v).maps_to (vt.fn()(v).fn()), nt.fn()(n).maps_to (vt.fn()(v).fn()))}))})});
 
-  d.init (Array.prototype, d.map ({'*':'map', '%':'grep', '+':'concat', '/':'fold', '>>$-':'flat_map'}, '$1.maps_to($0[$2])'.fn(Array.prototype)), {'<<':'@push($0), $_'});
+  r.alias_in (Array.prototype, {'*':'map', '%':'grep', '+':'concat', '/':'fold', '>>$-':'flat_map'});
+              Array.prototype['<<'] = '@push($0), $_'.fn();
+
+  r.alias_in (r.syntax.prototype, {'<<':'with_node', '*':'map'});
 
 //   Divergence inline macro support.
 //   Divergence promotes strings into functions with a macro mechanism very similar to the one here. Because of this, we can enable code transformation inside those inline macros, including
@@ -440,3 +454,4 @@ var d = (function () {
   }).toString())));
 
   print (d.rebase (function () {return [1, 2, 3] * (x >$> x + 1)}) ());
+  print (d.rebase (function () {return [1, 2, 3] >>$- (x >$> [x, x + 1])}) ());
