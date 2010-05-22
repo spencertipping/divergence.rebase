@@ -282,7 +282,7 @@ var d = (function () {
 
 __mAHhpP5JgWM51xZULH78ZjhNMuls84Ek6tMtnqKJqRA
 
-meta::code('main', <<'__yHj4nSDOp+zSXuFbos/DWdjjiWzjObSFL+t9QazhDNc');
+meta::code('main', <<'__wzM2q1lcPoKVtelzNt1WZDn/w4eeagowMvWJl57PrJ4');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -344,14 +344,22 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   The lexer is for the most part straightforward. The only tricky bit is regular expression parsing, which requires the lexer to contextualize operators and operands. I've implemented this
   logic with a expect_re flag that indicates whether the last token processed was an operator (if so, then we're expecting an operand and the next / delineates a regular expression).
 
-                   parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
+  We mark the position before a token and then just increment the position. The token, then, can be retrieved by taking a substring from the mark to the position. This eliminates the need for
+  intermediate concatenations. In a couple of cases I've gone ahead and done them anyway -- these are for operators, where we grab the longest contiguous substring that is defined. I'm not to
+  worried about the O(n^2) complexity due to concatenation; they're bounded by four characters.
+
+  Retrieving the Cartesian coordinates of the token is not difficult provided that we have a list of line lengths. We can then convert that list to a cumulative measure to enable binary
+  searching. I realize this is more elaborate than necessary given that the lexer is streaming (and thus would never need to recover old line lengths), but having to keep track of each newline
+  that occurs while reading the input is probably more expensive than the overhead incurred by O(log n) jumps.
+
+                   parse: function (s) {var mark = 0, i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
                                              precedence = r.precedence, ident = r.ident, punct = r.punct,
-                                            line_breaks = [0].concat (s.split('\n').map('.length')), mark = 0,
-                                                located = function () {var jump = line_breaks.length, l = 0, r = new String (token);
+                                            line_breaks = [0].concat (s.split('\n').map('.length')),
+                                          located_token = function () {var jump = line_breaks.length << 1, l = 0, r = new String (token);
                                                                        while (jump >>= 1) mark > line_breaks[l + jump] && (l += jump);
                                                                        return r.line = l + 1, r.character = mark - line_breaks[l], r};
 
-                          for (var j = 0, lj = line_breaks.length, total = 0; j < lj; ++j) line_breaks[j] = total += line_breaks[j] + 1;
+                          for (var j = 0, lj = line_breaks.length, total = -1; j < lj; ++j) line_breaks[j] = total += line_breaks[j] + 1;
 
                           while ((mark = i) < l && ($_ = c(i))) {
           escaped = token = '';
@@ -365,19 +373,18 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else if              ($_ === '"' && ! (expect_re = ! (token = '"')))  while   (($_ = c(++i)) !== '"' || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
           else if              ($_ === "'" && ! (expect_re = ! (token = "'")))  while   (($_ = c(++i)) !== "'" || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
           else if                    (expect_re && punct[$_] && (token = 'u'))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
-          else if                                                  (punct[$_])  while  (punct[$_ = c(i)] && precedence[token + $_])   expect_re = !! (token += $_), ++i;
+          else if                            (punct[$_] && (expect_re = true))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
+          else                                                                 {while                                 (ident[c(i)])   ++i; expect_re = precedence[token = s.substring(mark, i)]}
 
-          else while (ident[c(i)] || (expect_re = precedence[token = s.substring(mark, i)], false)) ++i;
+                                                           token || (token = s.substring (mark, i));
+          ! t.is_value() && (token === 'u++' || token === 'u--') && (token = token.substring (1));    // Workaround for postfix ++ and --
 
-          token = token || s.substring (mark, i);
-          if (! t.is_value() && (token === 'u++' || token === 'u--'))  token = token.substring (1);    // Workaround for postfix ++ and --
-
-               if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located()));
+               if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
           else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent;
-          else if                                     (token === '?')  openers.push (t = t.push_op (located()).graft ('?:'));
-          else if                                  (r.openers[token])  openers.push (t = t.graft (located()));
-          else if                                 (precedence[token])  t = t.push_op (located());
-          else                                                         t.push_value (located());
+          else if                                     (token === '?')  openers.push (t = t.push_op (located_token()).graft ('?:'));
+          else if                                  (r.openers[token])  openers.push (t = t.graft (located_token()));
+          else if                                 (precedence[token])  t = t.push_op (located_token());
+          else                                                         t.push_value (located_token());
                           }
                           return t.top()},
 
@@ -468,7 +475,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__yHj4nSDOp+zSXuFbos/DWdjjiWzjObSFL+t9QazhDNc
+__wzM2q1lcPoKVtelzNt1WZDn/w4eeagowMvWJl57PrJ4
 
 meta::code('test', <<'__4G7efdBau8JA5MqDpTqhBDLJZ8CHKeHzf16yD0Z+MN4');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>

@@ -6,8 +6,8 @@
     <style>
     #onebyone {font-family: monospace}
     #output   {font-family: monospace}
-    div       {color: #ccc; font-weight: bold}
-    div:hover {color: black; font-weight: bold; z-index: 1}
+    div       {color: #888; font-weight: bold}
+    div:hover {color: red; font-weight: bold; z-index: 1}
     </style>
 
     <script>
@@ -36,7 +36,13 @@
   <body>
     <span id='onebyone'>m</span>
     <div>
-      <textarea id='input' cols='80' rows='8'>function (x, y, z) {var foo = bar; foo += 6}</textarea>
+      <textarea id='input' cols='80' rows='8'>
+function (x, y, z) {
+  var foo = bar;
+  foo
++=
+  6
+}</textarea>
       <button onclick='process()'>Run</button>
     </div>
     <div id='output' style='position:relative'></div>
