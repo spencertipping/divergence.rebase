@@ -1,6 +1,3 @@
-**Note:** This project requires Divergence in order to work.
-See <http://github.com/spencertipping/divergence> to download.
-
 Rebase is a Divergence module that provides operator overloading and syntactic macros.
 
 # Operator overloading
