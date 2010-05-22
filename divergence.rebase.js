@@ -194,7 +194,7 @@
   d.map (d.operators, function (_, os) {
     d.map (os.transforms, function (nt, vt) {d.functions (d.map (os.operators, function (n, v) {return d.init (nt.fn()(v).maps_to (vt.fn()(v).fn()), nt.fn()(n).maps_to (vt.fn()(v).fn()))}))})});
 
-  d.init (Array.prototype, d.map ({'*':'map', '%':'grep', '+':'concat', '/':'fold', '^':'flat_map'}, '$1.maps_to($0[$2])'.fn(Array.prototype)), {'<<':'@push($0), $_'});
+  d.init (Array.prototype, d.map ({'*':'map', '%':'grep', '+':'concat', '/':'fold', '>>$-':'flat_map'}, '$1.maps_to($0[$2])'.fn(Array.prototype)), {'<<':'@push($0), $_'});
 
 //   Divergence inline macro support.
 //   Divergence promotes strings into functions with a macro mechanism very similar to the one here. Because of this, we can enable code transformation inside those inline macros, including

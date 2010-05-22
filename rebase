@@ -282,7 +282,7 @@ var d = (function () {
 
 __mAHhpP5JgWM51xZULH78ZjhNMuls84Ek6tMtnqKJqRA
 
-meta::code('main', <<'__6KkTHLy+LvTfeOZTBrCzn9rnPMWsBbvlceBXSbnV+8s');
+meta::code('main', <<'__p6APu1xK9h+wLTbxkf+GLqs6R3QMbtLbWOiAUn8CJtk');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -479,7 +479,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   d.map (d.operators, function (_, os) {
     d.map (os.transforms, function (nt, vt) {d.functions (d.map (os.operators, function (n, v) {return d.init (nt.fn()(v).maps_to (vt.fn()(v).fn()), nt.fn()(n).maps_to (vt.fn()(v).fn()))}))})});
 
-  d.init (Array.prototype, d.map ({'*':'map', '%':'grep', '+':'concat', '/':'fold', '^':'flat_map'}, '$1.maps_to($0[$2])'.fn(Array.prototype)), {'<<':'@push($0), $_'});
+  d.init (Array.prototype, d.map ({'*':'map', '%':'grep', '+':'concat', '/':'fold', '>>$-':'flat_map'}, '$1.maps_to($0[$2])'.fn(Array.prototype)), {'<<':'@push($0), $_'});
 
   Divergence inline macro support.
   Divergence promotes strings into functions with a macro mechanism very similar to the one here. Because of this, we can enable code transformation inside those inline macros, including
@@ -487,7 +487,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__6KkTHLy+LvTfeOZTBrCzn9rnPMWsBbvlceBXSbnV+8s
+__p6APu1xK9h+wLTbxkf+GLqs6R3QMbtLbWOiAUn8CJtk
 
 meta::code('test', <<'__X/r1UDk74aTMshwm5S8DNLa2kvoVo2nrpk987VufUpM');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
