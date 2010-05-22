@@ -1,4 +1,4 @@
-Rebase is a Divergence module that provides operator overloading and syntactic macros.
+Rebase is a Divergence module that provides operator overloading and syntactic macros in pure JavaScript. There are a few relatively unobtrusive limitations (see Caveats below), but it is able to run on its own source code successfully.
 
 # Operator overloading
 
@@ -49,7 +49,7 @@ By default, Rebase won't transform the strings that Divergence promotes into fun
     d.rebase.enable_inline_macro();
     [1, 2, 3].map ('((x, y) >$> x + y).fn($0)')         // Returns an array of functions
 
-Caveats:
+## Caveats
 
 1. Method calls are a lot slower than operators, so Rebase will slow your code down by quite a bit.
 2. Expressions such as `x++ + 5` are not parsed correctly (they fail a sanity check).
@@ -57,6 +57,7 @@ Caveats:
 4. **Rebased functions aren't closures.** They're re-evaluated at the global scope, which means that any closed-over variables will have to be passed in explicitly. However, all sub-functions inside a rebased function will close over variables within the rebased function's scope.
 5. SpiderMonkey JS does aggressive constant-folding, including replacing certain arithmetic expressions with `NaN` if it can determine that the types won't work out. In particular, this includes bit-shifting by a string literal, for instance. So for reliable operation, you should use variables instead of literals to avoid these issues.
 6. Nullary `return` doesn't get parsed correctly. You always need to return something, even if it's just `undefined`.
+7. `do {} while ()` loops aren't handled. Handling these makes `while` context-sensitive, and Rebase's parser is purely precedence-oriented.
 
 Rebase uses a series of functions installed on the prototypes of all standard types in order to mimic the default behavior. Sometimes these functions will not quite behave the same way due to autoboxing; if you find such a case, let me know.
 
