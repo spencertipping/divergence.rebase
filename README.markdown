@@ -56,6 +56,7 @@ Caveats:
 3. Statement-mode function definitions aren't allowed -- you have to use `var f = function () ...` instead of `function f () ...`
 4. **Rebased functions aren't closures.** They're re-evaluated at the global scope, which means that any closed-over variables will have to be passed in explicitly. However, all sub-functions inside a rebased function will close over variables within the rebased function's scope.
 5. SpiderMonkey JS does aggressive constant-folding, including replacing certain arithmetic expressions with `NaN` if it can determine that the types won't work out. In particular, this includes bit-shifting by a string literal, for instance. So for reliable operation, you should use variables instead of literals to avoid these issues.
+6. Nullary `return` doesn't get parsed correctly. You always need to return something, even if it's just `undefined`.
 
 Rebase uses a series of functions installed on the prototypes of all standard types in order to mimic the default behavior. Sometimes these functions will not quite behave the same way due to autoboxing; if you find such a case, let me know.
 
