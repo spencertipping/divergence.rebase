@@ -63,8 +63,8 @@
                                              precedence = r.precedence, ident = r.ident, punct = r.punct,
                                             line_breaks = [0].concat (s.split('\n').map('.length')), mark = 0,
                                                 located = function () {var jump = line_breaks.length, l = 0, r = new String (token);
-                                                                       while (jump >>= 1) i > line_breaks[l + jump] && (l += jump);
-                                                                       return r.line = l + 1, r.character = i - line_breaks[l], r};
+                                                                       while (jump >>= 1) mark > line_breaks[l + jump] && (l += jump);
+                                                                       return r.line = l + 1, r.character = mark - line_breaks[l], r};
 
                           for (var j = 0, lj = line_breaks.length, total = 0; j < lj; ++j) line_breaks[j] = total += line_breaks[j] + 1;
 
