@@ -282,7 +282,7 @@ var d = (function () {
 
 __mAHhpP5JgWM51xZULH78ZjhNMuls84Ek6tMtnqKJqRA
 
-meta::code('main', <<'__Ranh2ws11F01Vg4H0KNIFqA5RqKRTd8vlHA0GYZL8iw');
+meta::code('main', <<'__DfmB5G8Sk8fm560tANs+FcJQnIMlDSrmB/qfBdb74/Q');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -476,7 +476,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                            operators: {plus:'+', minus:'-', times:'*', over:'/', modulo:'%', lt:'<', gt:'>', le:'<=', ge:'>=', eq:'==', ne:'!=', req:'===', rne:'!==', and:'&&', or:'||', xor:'^',
                                        bitand:'&', bitor:'|', then:',', lshift: '<<', rshift: '>>', rushift: '>>>'}},
                   unary: {transforms: {'$0': '$0($1) + "$_"'.fn(translate), '$0 + "_fn"': '"{|f| " + $0($1) + "f.fn.apply($_,@_)|}.fn($_.fn())"'.fn(translate)},
-                           operators: {not:'!', notnot:'!!', complement:'~', negative:'u-', positive:'u+'}}};
+                           operators: {not:'u!', complement:'u~', negative:'u-', positive:'u+'}}};
 
   d.map (d.operators, function (_, os) {
     d.map (os.transforms, function (nt, vt) {d.functions (d.map (os.operators, function (n, v) {return d.init (nt.fn()(v).maps_to (vt.fn()(v).fn()), nt.fn()(n).maps_to (vt.fn()(v).fn()))}))})});
@@ -487,7 +487,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__Ranh2ws11F01Vg4H0KNIFqA5RqKRTd8vlHA0GYZL8iw
+__DfmB5G8Sk8fm560tANs+FcJQnIMlDSrmB/qfBdb74/Q
 
 meta::code('test', <<'__oQKwKzULyXhDFWyPQmgmkLfHI5h5oTkxSBuz0vXr9gE');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
