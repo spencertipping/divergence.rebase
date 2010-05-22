@@ -86,7 +86,8 @@ var d = (function () {
 
 (function () {
   var set            = '.fold({< $0[$1] = true, $0 >}, {})'.fn(),            last = '$0[$0.length - 1]'.fn(),  qw = '.split(/\\s+/)'.fn(),
-        r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null,                       s = '$0 === undefined ? "" : $0.toString()'.fn();
+        r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null,
+        s            =   function (x) {if (x === undefined || x === null) return ''; var s = x.toString(); return s.charAt(0) === '@' ? s.substring (1) : s};
 
   d.init (r, {precedence: {'function':1, '[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, '++':3, '--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4,
                            '+':5, '-':5, '<<':6, '>>':6, '>>>':6, '<':7, '>':7, '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12,
@@ -157,9 +158,10 @@ var d = (function () {
           else if              ($_ === "'" && ! (expect_re = ! (token = "'")))  while   (($_ = c(++i)) !== "'" || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
           else if                    (expect_re && punct[$_] && (token = 'u'))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
           else if                            (punct[$_] && (expect_re = true))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
-          else                                                                 {while                                 (ident[c(i)])   ++i; expect_re = precedence[token = s.substring(mark, i)]}
+          else                                                                 {while                               (ident[c(++i)]);  expect_re = precedence.hasOwnProperty (token = s.substring(mark, i))}
 
-                                                           token || (token = s.substring (mark, i));
+          expect_re && token.charAt(0) === 'u' || (token = s.substring (mark, i));
+          token in {} && (token = '@' + token);
           ! t.is_value() && (token === 'u++' || token === 'u--') && (token = token.substring (1));    // Workaround for postfix ++ and --
 
                if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
@@ -192,8 +194,8 @@ var d = (function () {
                      hand_to_parent: '@parent ? @parent.push_op($0) : "Syntax trees should have a minimal-precedence container".fail()'.fn(),
                                 top: '@parent ? @parent.top() : $_'.fn(),
                            toString:  function () {return '([{'.indexOf(this.op) > -1 ? this.op + s(this.xs[0]) + r.openers[this.op] :
-                                                                     this.op ===  '?' ? s(this.xs[0]) + ' ? ' + s(this.xs[1].xs[0]) + ' : ' + s(this.xs[2]) :
-                                                 this.op === '(!' || this.op === '[!' ? s(this.xs[0]) + s(this.xs[1]) :
+                                                                      this.op ==  '?' ? s(this.xs[0]) + ' ? ' + s(this.xs[1].xs[0]) + ' : ' + s(this.xs[2]) :
+                                                   this.op == '(!' || this.op == '[!' ? s(this.xs[0]) + s(this.xs[1]) :
                                                        r.implicit_assignment[this.op] ? '(' + (this.op.charAt(0) === 'u' ? this.op.substring(1) + s(this.xs[0]) : s(this.xs[0]) + this.op) + ')' :
                                                                      r.unary[this.op] ? (r.translations[this.op] || this.op) + ' ' + s(this.xs[0]) :
                                                              r.prefix_binary[this.op] ? this.op + ' ' + s(this.xs[0]) + ' ' + s(this.xs[1]) :
@@ -294,7 +296,7 @@ var d = (function () {
   test ('++foo');
 
 //  test ('foo++ + 5');
-//  test ('++foo + 5');
+  test ('++foo + 5');
 
   test ('foo + bar++');
   test ('foo + ++bar');
@@ -342,7 +344,43 @@ var d = (function () {
   test ('foo + bar(bif)');
   test ('foo() + bar()');
 
-  test ('foo = bar = baz');
+  test('x>$>(x+1)');
+  test('x>$>$>(x+1)');
+
+  test('(foo<<bar)>>$-(x>$>x+1)');
+
+  test('[1,2,3]*(x>$>x+1)');
+  test('[1,2,3]*(x>$>x)+1');
+
+  test('x+(()>$>y+5)');
+  test('x+((y,z)>$>y+5)');
+
+  test('x+$>>y');
+
+  test('foo?bar:bif');
+
+  test('foo?bar+bok:bif');
+  test('foo?bar?bif:baz:bok');
+  test('foo?bar?bif:baz:bok;quux');
+  test('foo?bar?bif:baz:bok=quux');
+
+  test('foo+(bar==bif)*(baz===bok)');
+
+  test('foo()()()()');
+
+  test('typeofnewnewnewnewfoo()');
+
+  test('fooinstanceofbar');
+  test('fooinbar');
+
+  test('foo>$*(x+bar>>$>>baz)');
+  test('foo>>$-bar');
+  test('foo>$*bar>>-baz');
+
+  test('foo+bar(bif)');
+  test('foo()+bar()');
+
+  test('foo=bar=baz');
 
   test ('foo(bif)');
   test ('foo // bif\n(bar)');
@@ -380,3 +418,11 @@ var d = (function () {
   print ('(x >$> x + 1) ($0)'.fn() (5));
 
   print (d.rebase (function () {return comment ('foobar'.fail())}) ());
+
+  print (d.rebase (function (x) {return x.y()}).toString());
+  print (d.rebase (function (x) {return x.tostring()}).toString());
+  print (d.rebase (function (x) {return x.toString()}) (5));
+
+  print (d.rebase (function (n) {return 'foo' + n}) (255));
+  print (d.rebase (function (n) {return 'foo' + n.toString()}) (255));
+  print (d.rebase (function (n) {return 'foo' + n.toString(16)}) (255));

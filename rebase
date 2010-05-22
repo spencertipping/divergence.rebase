@@ -282,7 +282,7 @@ var d = (function () {
 
 __mAHhpP5JgWM51xZULH78ZjhNMuls84Ek6tMtnqKJqRA
 
-meta::code('main', <<'__dTEYrUmkEFKF9VGzh/QvGlIlIEPS1Pfmtu3FXerHLXQ');
+meta::code('main', <<'__LXtt92c2P1zx9r2CiwGppIjJgFUdauJCMpIQgL0RcJk');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -304,7 +304,8 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
 (function () {
   var set            = '.fold({< $0[$1] = true, $0 >}, {})'.fn(),            last = '$0[$0.length - 1]'.fn(),  qw = '.split(/\\s+/)'.fn(),
-        r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null,                       s = '$0 === undefined ? "" : $0.toString()'.fn();
+        r = d.rebase =   function () {return r.init.apply (this, arguments)},   $ = null,
+        s            =   function (x) {if (x === undefined || x === null) return ''; var s = x.toString(); return s.charAt(0) === '@' ? s.substring (1) : s};
 
   d.init (r, {precedence: {'function':1, '[!':1, '.':1, '(!':1, 'new':2, 'u++':3, 'u--':3, '++':3, '--':3, 'typeof':3, 'u~':3, 'u!':3, 'u+':3, 'u-':3, '*':4, '/':4, '%':4,
                            '+':5, '-':5, '<<':6, '>>':6, '>>>':6, '<':7, '>':7, '<=':7, '>=':7, 'instanceof':7, 'in':7, '==':8, '!=':8, '===':8, '!==':8, '&':9, '^':10, '|':11, '&&':12,
@@ -375,9 +376,10 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           else if              ($_ === "'" && ! (expect_re = ! (token = "'")))  while   (($_ = c(++i)) !== "'" || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
           else if                    (expect_re && punct[$_] && (token = 'u'))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
           else if                            (punct[$_] && (expect_re = true))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
-          else                                                                 {while                               (ident[c(++i)]);  expect_re = precedence[token = s.substring(mark, i)]}
+          else                                                                 {while                               (ident[c(++i)]);  expect_re = precedence.hasOwnProperty (token = s.substring(mark, i))}
 
           expect_re && token.charAt(0) === 'u' || (token = s.substring (mark, i));
+          token in {} && (token = '@' + token);
           ! t.is_value() && (token === 'u++' || token === 'u--') && (token = token.substring (1));    // Workaround for postfix ++ and --
 
                if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
@@ -483,9 +485,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__dTEYrUmkEFKF9VGzh/QvGlIlIEPS1Pfmtu3FXerHLXQ
+__LXtt92c2P1zx9r2CiwGppIjJgFUdauJCMpIQgL0RcJk
 
-meta::code('test', <<'__KWLOeQhlD1fmaR7r/eaAC36HZGrr+29lVsOsioxlRJM');
+meta::code('test', <<'__YSQTD99M6mFrZ4lHHbUmhJ36WXWOLbG/m6f3uh5Z6rs');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -634,12 +636,14 @@ Parse tests.
 
   print (d.rebase (function () {return comment ('foobar'.fail())}) ());
 
+  print (d.rebase (function (x) {return x.y()}).toString());
+  print (d.rebase (function (x) {return x.tostring()}).toString());
   print (d.rebase (function (x) {return x.toString()}) (5));
 
   print (d.rebase (function (n) {return 'foo' + n}) (255));
   print (d.rebase (function (n) {return 'foo' + n.toString()}) (255));
   print (d.rebase (function (n) {return 'foo' + n.toString(16)}) (255));
-__KWLOeQhlD1fmaR7r/eaAC36HZGrr+29lVsOsioxlRJM
+__YSQTD99M6mFrZ4lHHbUmhJ36WXWOLbG/m6f3uh5Z6rs
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.
