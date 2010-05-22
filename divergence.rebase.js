@@ -34,7 +34,7 @@
      implicit_assignment: set(qw('++ -- u++ u--')),                                                                       sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),
                  literal: set(qw('= ++ -- u++ u-- (! [! . ?: , ? ( { [ === !== ; : && ||')),                            sandwich_ops: set(qw('+ - * / % ^ | & << >> >>> < >')),
            prefix_binary: set(qw('if function catch for switch with')),                                                      closers: {')':'(', ']':'[', '}':'{', ':':'?:'},
-            translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                 arity_of: '$0.unary[$1] ? 1 : $1 === "?" ? 3 : 2'.fn(r),
+            translations: {'u+':'+', 'u-':'-', 'u~':'~', 'u!':'!', 'u--':'--', 'u++':'++'},                                 arity_of: '$0.unary[$1] ? 1 : $1 == "?" ? 3 : 2'.fn(r),
            lvalue_assign: set(qw('+= -= *= /= %= ^= |= &= <<= >>= >>>=')),                                            should_convert: '! ($0.literal[$1] || $0.syntactic[$1])'.fn(r),
 
                     init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
@@ -50,7 +50,7 @@
 //   tree. Each node gets inspected, and mapping functions can modify nodes by returning alternative values. To save space and time, I'm having macros replace structures halfway destructively
 //   rather than using a pure functional approach.
 
-               transform: function (t) {if (t && t.op === '(!' && t.xs[0] === 'literal') return t.xs[1];
+               transform: function (t) {if (t && t.op === '(!' && t.xs[0] == 'literal') return t.xs[1];
                                         var mapped = r.macros.fold ('$1($0) || $0', t);
                                         mapped && mapped.xs && (mapped.xs = mapped.xs.map ('$1 && $1.op ? $0($1) : $1'.fn (r.transform)));
                                         return mapped},
@@ -60,38 +60,40 @@
 //   logic with a expect_re flag that indicates whether the last token processed was an operator (if so, then we're expecting an operand and the next / delineates a regular expression).
 
                    parse: function (s) {var i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
-                                            line_breaks = s.split('\n'),
-                                            position = function (j) {var jump = line_breaks.length, l = 0;
-                                                                     while (jump >>= 1) l >= line_breaks[l + jump] && (l += jump);
-                                                                     return {line: l + 1, character: line_breaks[l] - j}};
+                                             precedence = r.precedence, ident = r.ident, punct = r.punct,
+                                            line_breaks = [0].concat (s.split('\n').map('.length')), mark = 0,
+                                                located = function () {var jump = line_breaks.length, l = 0, r = new String (token);
+                                                                       while (jump >>= 1) j > line_breaks[l + jump] && (l += jump);
+                                                                       r.line = l + 1, r.character = j - line_breaks[l];
+                                                                       return r};
 
                           for (var j = 0, lj = line_breaks.length, total = 0; j < lj; ++j) line_breaks[j] = total += line_breaks[j] + 1;
 
-                          while (i < l && ($_ = c(i))) {
+                          while ((mark = i) < l && ($_ = c(i))) {
           escaped = token = '';
-          t.position_at (i);
 
-               if                   (' \n\r\t'.indexOf ($_) > -1)                                                                        ++i;
-          else if                  ('([{?:}])'.indexOf ($_) > -1)                                                                        expect_re = '([{?:'.indexOf (token = $_) > -1, ++i;
-          else if    ($_ === '/' && c(i + 1) === '*' && (i += 2))  while                  (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);
-          else if                ($_ === '/' && c(i + 1) === '/')  while                        (($_ = c(++i)) !== '\n' && $_ !== '\r');
-          else if ($_ === '/' &&    expect_re &&  (token = '/'))  {while          (($_ = c(++i)) !== '/' || escaped || ! (token += $_))  expect_re = ! (token += $_), escaped = ! escaped && $_ === '\\';
-                                                                   while                                         (r.ident[$_ = c(++i)])  token += $_}
-          else if ($_ === '"' && ! (expect_re = ! (token = '"')))  while (($_ = c(++i)) !== '"' || escaped || ! ++i || ! (token += $_))  token += $_, escaped = ! escaped && $_ === '\\';
-          else if ($_ === "'" && ! (expect_re = ! (token = "'")))  while (($_ = c(++i)) !== "'" || escaped || ! ++i || ! (token += $_))  token += $_, escaped = ! escaped && $_ === '\\';
-          else if     (expect_re && r.punct[$_] && (token = 'u'))  while               (r.punct[$_ = c(i)] && r.precedence[token + $_])  token += $_, ++i;
-          else if                                   (r.punct[$_])  while               (r.punct[$_ = c(i)] && r.precedence[token + $_])  expect_re = !! (token += $_), ++i;
-          else                                                     while                                           (r.ident[$_ = c(i)])  expect_re = !! r.precedence[token += $_], ++i;
+               if                                (' \n\r\t'.indexOf ($_) > -1)                                                       {++i; continue}
+          else if                               ('([{?:}])'.indexOf ($_) > -1)                                                        expect_re = '([{:?'.indexOf ($_) > -1, ++i;
+          else if                 ($_ === '/' && c(i + 1) === '*' && (i += 2)) {while (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);  continue}
+          else if                             ($_ === '/' && c(i + 1) === '/') {while       (($_ = c(++i)) !== '\n' && $_ !== '\r');  continue}
+          else if ($_ === '/' && expect_re && ! (expect_re = ! (token = '/'))) {while            (($_ = c(++i)) !== '/' || escaped)   escaped = ! escaped && $_ === '\\';
+                                                                                while                               (ident[c(++i)]);}
+          else if              ($_ === '"' && ! (expect_re = ! (token = '"')))  while   (($_ = c(++i)) !== '"' || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
+          else if              ($_ === "'" && ! (expect_re = ! (token = "'")))  while   (($_ = c(++i)) !== "'" || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
+          else if                    (expect_re && punct[$_] && (token = 'u'))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
+          else if                                                  (punct[$_])  while  (punct[$_ = c(i)] && precedence[token + $_])   expect_re = !! (token += $_), ++i;
 
-               if                                                (! token)  continue;
-               if (! t.is_value() && (token === 'u++' || token === 'u--'))  token = token.substring (1);    // Workaround for postfix ++ and --
+          else while (ident[c(i)] || (expect_re = precedence[token = s.substring(mark, i)], false)) ++i;
 
-               if          (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (token));
-          else if (($_ = r.closers[token]) && last(openers).op === $_)  t = openers.pop().parent;
-          else if                                      (token === '?')  openers.push (t = t.push_op (token).graft ('?:'));
-          else if                                   (r.openers[token])  openers.push (t = t.graft (token));
-          else if                                (r.precedence[token])  t = t.push_op (token);
-          else                                                          t.push_value (token);
+          token = token || s.substring (mark, i);
+          if (! t.is_value() && (token === 'u++' || token === 'u--'))  token = token.substring (1);    // Workaround for postfix ++ and --
+
+               if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located()));
+          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent;
+          else if                                     (token === '?')  openers.push (t = t.push_op (located()).graft ('?:'));
+          else if                                  (r.openers[token])  openers.push (t = t.graft (located()));
+          else if                                 (precedence[token])  t = t.push_op (located());
+          else                                                         t.push_value (located());
                           }
                           return t.top()},
 
@@ -110,7 +112,6 @@
                   syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.ctor ({
                            is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
                          push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many for the tree " + @toString() + ".").fail()'.fn(),
-                        position_at: '@position || (@position = $0), $_'.fn(),
                           with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
                             push_op: '$0.precedence[$1] - !! $0.right[$1] < $0.precedence[@op] ? @graft($1) : @hand_to_parent($1)'.fn(r),
                               graft: '@push_value(@is_value() ? new $0.syntax($_, $1).with_node(@xs.pop()) : new $0.syntax($_, $1))'.fn(r),
