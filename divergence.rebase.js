@@ -50,7 +50,7 @@
 //   tree. Each node gets inspected, and mapping functions can modify nodes by returning alternative values. To save space and time, I'm having macros replace structures halfway destructively
 //   rather than using a pure functional approach.
 
-               transform: function (t) {if (t && t.op === '(!' && t.xs[0] == 'literal') return t.xs[1];
+               transform: function (t) {if (t && t.op == '(!' && t.xs[0] == 'literal') return t.xs[1];
                                         var mapped = r.macros.fold ('$1($0) || $0', t);
                                         mapped && mapped.xs && (mapped.xs = mapped.xs.map ('$1 && $1.op ? $0($1) : $1'.fn (r.transform)));
                                         return mapped},
@@ -65,15 +65,16 @@
 
 //   Retrieving the Cartesian coordinates of the token is not difficult provided that we have a list of line lengths. We can then convert that list to a cumulative measure to enable binary
 //   searching. I realize this is more elaborate than necessary given that the lexer is streaming (and thus would never need to recover old line lengths), but having to keep track of each newline
-//   that occurs while reading the input is probably more expensive than the overhead incurred by O(log n) jumps.
+//   that occurs while reading the input is probably more expensive than the overhead incurred by O(log n) jumps every so often.
 
                    parse: function (s) {var mark = 0, i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
                                              precedence = r.precedence, ident = r.ident, punct = r.punct,
-                                            line_breaks = [0].concat (s.split('\n').map('.length')),
-                                          located_token = function () {var jump = line_breaks.length << 1, l = 0, r = new String (token);
-                                                                       while (jump >>= 1) mark > line_breaks[l + jump] && (l += jump);
+                                            line_breaks = [0].concat (s.split('\n').map('.length')), lb = 1,
+                                          located_token = function () {var jump = lb << 1, l = 0, r = new String (token);
+                                                                       while (jump >>= 1) mark >= line_breaks[l + jump] && (l += jump);
                                                                        return r.line = l + 1, r.character = mark - line_breaks[l], r};
 
+                          while ((lb <<= 1) < line_breaks.length);
                           for (var j = 0, lj = line_breaks.length, total = -1; j < lj; ++j) line_breaks[j] = total += line_breaks[j] + 1;
 
                           while ((mark = i) < l && ($_ = c(i))) {
@@ -160,8 +161,8 @@
 //       | (x, y) >$> x + 1        // valid
 //       | x, y >$> x + 1          // parses as x, (y >$> x + 1)
 
-          function (e) {return e.op === '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op === '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
-                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
+          function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
+                                                                                  with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
 
 //     Operator overloading.
 //     Once we're done with all of the preprocessing we can actually replace the operators with method calls. I'm cheating just a bit here; normally you would encase the operation inside a [ node
