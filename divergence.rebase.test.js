@@ -192,6 +192,8 @@ var d = (function () {
                   syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.ctor ({
                            is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
                                 map: 'new $0.syntax(null, @op, @xs.map($1).map({|t, x| x.parent = t, x |}.fn($_)))'.fn(r),
+                               find: '(@op == $0 || @xs.grep({|t, x| t == x |}.fn($0)).length ? [$_] : []).concat (@xs.flat_map({|t, v| v && v.xs && v.find(t) || [] |}.fn($0)))'.fn(),
+                            replace: '@xs[$0] = $1, $1 && ($1.parent = $_), $_'.fn(),
                          push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many for the tree " + $_ + " in the context " + $_.top() + ".").fail()'.fn(),
                           with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
                             push_op: '$0.precedence[$1] - !! ($0.right[$1] || $0.syntactic[$1]) < $0.precedence[@op] ? @graft($1) : @hand_to_parent($1)'.fn(r),
@@ -250,6 +252,18 @@ var d = (function () {
 
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
+
+//     Cached functions.
+//     If you want to delay the computation of some expression and cache the result once it has been computed, then you can prefix that expression with $|. This produces a function, just like
+//     >$>, but the function's result will be computed only once. It can be reset by calling the .reset() method.
+
+          function (e) {var syn = function (op) {return new r.syntax (null, op)},
+                              f = e.op == '|' && e.xs && e.xs[0] == '$' && r.parse (
+                                    '(function (__rebase_value, __rebase_computed) {var __rebase_result = function () {' +
+                                      'return __rebase_computed ? __rebase_value : (__rebase_computed = true, __rebase_value = (__expression__))};' +
+                                                                                   '__rebase_result.reset = function () {__rebase_computed = false; return __rebase_result};' +
+                                                                                   'return __rebase_result}) (null, false)');
+                        return f ? (f.find ('__expression__')[0].replace (0, e.xs[1]), f) : e},
 
 //     Comments.
 //     Structural comments can be useful for removing chunks of code or for getting comments through SpiderMonkey's parse-deparse cycle (SpiderMonkey, and perhaps other JS interpreters, removes
@@ -442,6 +456,8 @@ var d = (function () {
                   syntax: '@parent = $0, @op = $1, @xs = $2 || [], $_'.ctor ({
                            is_value: '@xs.length >= $0.arity_of(@op)'.fn(r),
                                 map: 'new $0.syntax(null, @op, @xs.map($1).map({|t, x| x.parent = t, x |}.fn($_)))'.fn(r),
+                               find: '(@op == $0 || @xs.grep({|t, x| t == x |}.fn($0)).length ? [$_] : []).concat (@xs.flat_map({|t, v| v && v.xs && v.find(t) || [] |}.fn($0)))'.fn(),
+                            replace: '@xs[$0] = $1, $1 && ($1.parent = $_), $_'.fn(),
                          push_value: '! @is_value() ? (@xs.push($0), $0) : ("The token " + $0 + " is one too many for the tree " + $_ + " in the context " + $_.top() + ".").fail()'.fn(),
                           with_node: '$0 && ($0.parent = $_), @push_value($0), $_'.fn(),
                             push_op: '$0.precedence[$1] - !! ($0.right[$1] || $0.syntactic[$1]) < $0.precedence[@op] ? @graft($1) : @hand_to_parent($1)'.fn(r),
@@ -500,6 +516,18 @@ var d = (function () {
 
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
+
+//     Cached functions.
+//     If you want to delay the computation of some expression and cache the result once it has been computed, then you can prefix that expression with $|. This produces a function, just like
+//     >$>, but the function's result will be computed only once. It can be reset by calling the .reset() method.
+
+          function (e) {var syn = function (op) {return new r.syntax (null, op)},
+                              f = e.op == '|' && e.xs && e.xs[0] == '$' && r.parse (
+                                    '(function (__rebase_value, __rebase_computed) {var __rebase_result = function () {' +
+                                      'return __rebase_computed ? __rebase_value : (__rebase_computed = true, __rebase_value = (__expression__))};' +
+                                                                                   '__rebase_result.reset = function () {__rebase_computed = false; return __rebase_result};' +
+                                                                                   'return __rebase_result}) (null, false)');
+                        return f ? (f.find ('__expression__')[0].replace (0, e.xs[1]), f) : e},
 
 //     Comments.
 //     Structural comments can be useful for removing chunks of code or for getting comments through SpiderMonkey's parse-deparse cycle (SpiderMonkey, and perhaps other JS interpreters, removes
@@ -712,4 +740,16 @@ var d = (function () {
   d.rebase (function () {
     print ("Foo is #{3 + 5}");
     print ("Bar is #{(x >$> x + 1) (5)}");
+  }) ();
+
+  d.rebase (function () {
+    var count = 0;
+    var f = $| ++count;
+    print (f ());
+    print (f ());
+    print (f ());
+
+    f.reset ();
+    print (f ());
+    print (f ());
   }) ();
