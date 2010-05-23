@@ -139,7 +139,7 @@ var d = (function () {
 //   searching. I realize this is more elaborate than necessary given that the lexer is streaming (and thus would never need to recover old line lengths), but having to keep track of each newline
 //   that occurs while reading the input is probably more expensive than the overhead incurred by O(log n) jumps every so often.
 
-                   parse: function (s) {var mark = 0, i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
+                   parse: function (s) {var mark = 0, i = 0, $_ = '', l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
                                              precedence = r.precedence, ident = r.ident, punct = r.punct,
                                             line_breaks = [0].concat (s.split('\n').map('.length')), lb = 1,
                                           located_token = function () {var jump = lb << 1, l = 0, r = new String (token);
@@ -168,7 +168,7 @@ var d = (function () {
           token in {} && (token = '@' + token);
 
                if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
-          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && token != 'else' && (t = t.push_op(';'));
+          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && (t = t.push_op(';'));
           else if                                     (token === '?')  openers.push (t = t.push_op (located_token()).graft ('?:'));
           else if                                  (r.openers[token])  openers.push (t = t.graft (located_token()));
           else if                                 (precedence[token])  t = t.push_op (located_token());
@@ -200,12 +200,12 @@ var d = (function () {
                            toString:  function () {var left_in = function (x, ops) {return x.xs && x.xs[0] && (ops[x.xs[0].op] && x.xs[0].op ||
                                                                                                                x.xs[0].xs && x.xs[0].xs[1] && ops[x.xs[0].xs[1].op] && x.xs[0].xs[1].op)},
                                                       right_in = function (x, ops) {return x.xs && x.xs[1] && ops[x.xs[1].op] && x.xs[1].op},
-                                                         right = null;
+                                                            $_ = '';
                                                    return '([{'.indexOf(this.op) > -1 ? this.op + s(this.xs[0]) + r.openers[this.op] :
                                                                       this.op ==  '?' ? s(this.xs[0]) + ' ? ' + s(this.xs[1].xs[0]) + ' : ' + s(this.xs[2]) :
                                                    this.op == '(!' || this.op == '[!' ? s(this.xs[0]) + s(this.xs[1]) :
                                                        r.implicit_assignment[this.op] ? '(' + (this.op.charAt(0) === 'u' ? this.op.substring(1) + s(this.xs[0]) : s(this.xs[0]) + this.op) + ')' :
-                                             this.xs[1] && r.connected[this.xs[1].op] ? s(this.xs[0]) + ' ' + s(this.xs[1]) :
+                                             this.xs[1] && r.connected[this.xs[1].op] ? (($_ = s(this.xs[0])).charAt($_.length - 1) === '}' ? $_ + ' ' : $_ + ';') + s(this.xs[1]) :
                                                                      r.unary[this.op] ? (r.translations[this.op] || this.op) + ' ' + s(this.xs[0]) :
                                                              r.prefix_binary[this.op] ? this.op + ' ' + s(this.xs[0]) + ' ' + s(this.xs[1]) :
                                                                                         s(this.xs[0]) + ' ' + this.op + ' ' + s(this.xs[1])}}),
@@ -381,7 +381,7 @@ var d = (function () {
 //   searching. I realize this is more elaborate than necessary given that the lexer is streaming (and thus would never need to recover old line lengths), but having to keep track of each newline
 //   that occurs while reading the input is probably more expensive than the overhead incurred by O(log n) jumps every so often.
 
-                   parse: function (s) {var mark = 0, i = 0, $_, l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
+                   parse: function (s) {var mark = 0, i = 0, $_ = '', l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
                                              precedence = r.precedence, ident = r.ident, punct = r.punct,
                                             line_breaks = [0].concat (s.split('\n').map('.length')), lb = 1,
                                           located_token = function () {var jump = lb << 1, l = 0, r = new String (token);
@@ -410,7 +410,7 @@ var d = (function () {
           token in {} && (token = '@' + token);
 
                if         (t.is_value() && '[('.indexOf (token) > -1)  openers.push (t = t.push_op (token + '!').graft (located_token()));
-          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && token != 'else' && (t = t.push_op(';'));
+          else if (($_ = r.closers[token]) && last(openers).op == $_)  t = openers.pop().parent, token === '}' && t.is_value() && r.statement[t.op] && (t = t.push_op(';'));
           else if                                     (token === '?')  openers.push (t = t.push_op (located_token()).graft ('?:'));
           else if                                  (r.openers[token])  openers.push (t = t.graft (located_token()));
           else if                                 (precedence[token])  t = t.push_op (located_token());
@@ -442,12 +442,12 @@ var d = (function () {
                            toString:  function () {var left_in = function (x, ops) {return x.xs && x.xs[0] && (ops[x.xs[0].op] && x.xs[0].op ||
                                                                                                                x.xs[0].xs && x.xs[0].xs[1] && ops[x.xs[0].xs[1].op] && x.xs[0].xs[1].op)},
                                                       right_in = function (x, ops) {return x.xs && x.xs[1] && ops[x.xs[1].op] && x.xs[1].op},
-                                                         right = null;
+                                                            $_ = '';
                                                    return '([{'.indexOf(this.op) > -1 ? this.op + s(this.xs[0]) + r.openers[this.op] :
                                                                       this.op ==  '?' ? s(this.xs[0]) + ' ? ' + s(this.xs[1].xs[0]) + ' : ' + s(this.xs[2]) :
                                                    this.op == '(!' || this.op == '[!' ? s(this.xs[0]) + s(this.xs[1]) :
                                                        r.implicit_assignment[this.op] ? '(' + (this.op.charAt(0) === 'u' ? this.op.substring(1) + s(this.xs[0]) : s(this.xs[0]) + this.op) + ')' :
-                                             this.xs[1] && r.connected[this.xs[1].op] ? s(this.xs[0]) + ' ' + s(this.xs[1]) :
+                                             this.xs[1] && r.connected[this.xs[1].op] ? (($_ = s(this.xs[0])).charAt($_.length - 1) === '}' ? $_ + ' ' : $_ + ';') + s(this.xs[1]) :
                                                                      r.unary[this.op] ? (r.translations[this.op] || this.op) + ' ' + s(this.xs[0]) :
                                                              r.prefix_binary[this.op] ? this.op + ' ' + s(this.xs[0]) + ' ' + s(this.xs[1]) :
                                                                                         s(this.xs[0]) + ' ' + this.op + ' ' + s(this.xs[1])}}),
