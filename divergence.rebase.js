@@ -55,6 +55,7 @@
 //   tree. Each node gets inspected, and mapping functions can modify nodes by returning alternative values. To save space and time, I'm having macros replace structures halfway destructively
 //   rather than using a pure functional approach.
 
+               translate: '$0.transform($0.parse($1)).toString()'.fn(r),
                transform: function (t) {if (t && t.op == '(!' && t.xs[0] == 'literal') return t.xs[1];
                                         var mapped = r.macros.fold ('$1($0) || $0', t);
                                         mapped && mapped.xs && (mapped.xs = mapped.xs.map ('$1 ? $0($1) : $1'.fn (r.transform)));
@@ -189,6 +190,13 @@
 //     normally.
 
           function (e) {return e.op == '(!' && e.xs && e.xs[0] == 'comment' ? 'undefined' : e},
+
+//     String interpolation.
+//     One of Ruby and Perl's great features is string interpolation. We can add this to JavaScript quite easily by writing a macro that looks for string nodes and expands them to expressions
+//     that build strings. Unfortunately we won't be able to distinguish between single and double-quoted strings because SpiderMonkey converts them all to double-quoted ones.
+
+          function (e) {return e.charAt && '\'"'.indexOf(e.charAt(0)) > -1 && /#\{[^}]+\}/.test(e) ?
+                               '(' + e.replace (/#\{([^}]+)\}/g, function (_, code) {return e.charAt(0) + '+(' + r.translate(code) + ')+' + e.charAt(0)}) + ')' : e},
 
 //     Operator overloading.
 //     Once we're done with all of the preprocessing we can actually replace the operators with method calls. I'm cheating just a bit here; normally you would encase the operation inside a [ node

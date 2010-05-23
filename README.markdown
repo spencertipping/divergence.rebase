@@ -1,5 +1,22 @@
 Rebase is a Divergence module that provides operator overloading and syntactic macros in pure JavaScript. There are a few relatively unobtrusive limitations (see Caveats below), but it is able to run on its own source code successfully.
 
+# String interpolation
+
+Any string inside a rebased function (see below) can have expressions inside of it, and those expressions will be interpolated just like they are in Ruby. For example, this string:
+
+    'foo is #{3 + 5}'
+
+will be translated to `('foo is ' + (3 + 5) + '')`. You can use any expression inside a `#{}` block as long as it contains no `}` characters -- the parser is uninsightful about handling those and will chop off the interpolated expression at the first closing brace it sees.
+
+Naturally this happens only inside rebased functions; this code illustrates that:
+
+    (function () {return 'foo is #{3 + 5}'}) ()                 // => 'foo is #{3 + 5}'
+    d.rebase (function () {return 'foo is #{3 + 5}'}) ()        // => 'foo is 8'
+
+You can use overloaded operators and other syntactic macros in the expressions and they will be handled correctly:
+
+    d.rebase (function () {return 'foo is #{(x >$> x + 1) (5)}'}) ()    // => 'foo is 6'
+
 # Operator overloading
 
 Consider this function:

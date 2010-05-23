@@ -282,7 +282,7 @@ var d = (function () {
 
 __mgOL36mfzZ3wiz9iNpNvE5zzifLo0jmpyKjyxwb7B5A
 
-meta::code('main', <<'__DqIssH8bjKC2SnJ0+1crtCCdML7eim9hw/l1WeeqFa4');
+meta::code('main', <<'__9ZjblIHA6QbKaI6cCdprADEvvGsUffFuf5klC8J+RAE');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -340,6 +340,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   tree. Each node gets inspected, and mapping functions can modify nodes by returning alternative values. To save space and time, I'm having macros replace structures halfway destructively
   rather than using a pure functional approach.
 
+               translate: '$0.transform($0.parse($1)).toString()'.fn(r),
                transform: function (t) {if (t && t.op == '(!' && t.xs[0] == 'literal') return t.xs[1];
                                         var mapped = r.macros.fold ('$1($0) || $0', t);
                                         mapped && mapped.xs && (mapped.xs = mapped.xs.map ('$1 ? $0($1) : $1'.fn (r.transform)));
@@ -475,6 +476,13 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
 
           function (e) {return e.op == '(!' && e.xs && e.xs[0] == 'comment' ? 'undefined' : e},
 
+    String interpolation.
+    One of Ruby and Perl's great features is string interpolation. We can add this to JavaScript quite easily by writing a macro that looks for string nodes and expands them to expressions
+    that build strings. Unfortunately we won't be able to distinguish between single and double-quoted strings because SpiderMonkey converts them all to double-quoted ones.
+
+          function (e) {return e.charAt && '\'"'.indexOf(e.charAt(0)) > -1 && /#\{[^}]+\}/.test(e) ?
+                               '(' + e.replace (/#\{([^}]+)\}/g, function (_, code) {return e.charAt(0) + '+(' + r.translate(code) + ')+' + e.charAt(0)}) + ')' : e},
+
     Operator overloading.
     Once we're done with all of the preprocessing we can actually replace the operators with method calls. I'm cheating just a bit here; normally you would encase the operation inside a [ node
     after wrapping it as a string. However, I'm being lazy and making the excuse that maybe later on you want to detect proper method calls from generated ones; so the right-hand side of the
@@ -507,9 +515,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__DqIssH8bjKC2SnJ0+1crtCCdML7eim9hw/l1WeeqFa4
+__9ZjblIHA6QbKaI6cCdprADEvvGsUffFuf5klC8J+RAE
 
-meta::code('test', <<'__FWHNsYkV5opOl+iFJSG8FqyD3pzxfXnTPwn5zC78hrI');
+meta::code('test', <<'__Q4hW3tQmCrzMhPMTWr6oNwombci1MsDYjgY/S07tJXw');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -686,7 +694,12 @@ Parse tests.
 
   print (d.rebase (function () {return [1, 2, 3] * (x >$> x + 1)}) ());
   print (d.rebase (function () {return [1, 2, 3] >>$- (x >$> [x, x + 1])}) ());
-__FWHNsYkV5opOl+iFJSG8FqyD3pzxfXnTPwn5zC78hrI
+
+  d.rebase (function () {
+    print ("Foo is #{3 + 5}");
+    print ("Bar is #{(x >$> x + 1) (5)}");
+  }) ();
+__Q4hW3tQmCrzMhPMTWr6oNwombci1MsDYjgY/S07tJXw
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.
