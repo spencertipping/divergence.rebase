@@ -17,6 +17,16 @@ You can use overloaded operators and other syntactic macros in the expressions a
 
     d.rebase (function () {return 'foo is #{(x >$> x + 1) (5)}'}) ()    // => 'foo is 6'
 
+Note that even though it seems valid, you can't use an interpolated string as a hash key, because string interpolation rewrites the literal into a parenthesized expression:
+
+    d.rebase (function () {return {'foo is #{3 + 5}': 'bar', bif: 'baz'}})      // => SyntaxError: invalid object key: ('foo is ' + (3 + 5) + '')
+
+Rebase isn't context-aware enough to detect or fix this. A reasonable workaround, however, is to fold over `init`, merging objects:
+
+    d.rebase (function () {
+      return d.init ('foo is #{3 + 5}'.maps_to('bar'), {bif: 'baz'});
+    }) ();                                                                      // => {'foo is 8':'bar', bif:'baz'}
+
 # Operator overloading
 
 Consider this function:
