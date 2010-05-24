@@ -151,12 +151,6 @@
 
                   macros: [
 
-//     Assignment expansion.
-//     Since the left-hand side of +=, -=, etc. must be an lvalue, we can't say something like x['+='](y) and expect anything useful. So instead of overloading the operator, we just replace it with
-//     the longhand x = x + y, and let the '+' operator get replaced by the method call.
-
-          function (e) {return e.xs && r.lvalue_assign[e.op] ? new r.syntax(null, "=", [e.xs[0], new r.syntax(null, e.op.substring(0, e.op.length - 1), e.xs)]) : e},
-
 //     Identifier sandwiching.
 //     Certain identifiers can be sandwiched into binary operators as if they were part of the operator name. Most binary operators are candidates for sandwiching, and several identifiers are
 //     included by default (see the sandwiches hash above). This could be optimized by using in-place rewriting, but using sandwich operators is not terribly common.
@@ -165,6 +159,12 @@
             e.xs[1] && e.xs[1].op && r.sandwich_ops[e.xs[1].op] && r.sandwiches[e.xs[1].xs[0]] ? new r.syntax(e.parent, e.op + e.xs[1].xs[0] + e.xs[1].op, [e.xs[0], e.xs[1].xs[1]]) :
             e.xs[0] && e.xs[0].op && r.sandwich_ops[e.xs[0].op] && r.sandwiches[e.xs[0].xs[1]] ? new r.syntax(e.parent, e.xs[0].op + e.xs[0].xs[1] + e.op, [e.xs[0].xs[0], e.xs[1]]) :
             e : e},
+
+//     Assignment expansion.
+//     Since the left-hand side of +=, -=, etc. must be an lvalue, we can't say something like x['+='](y) and expect anything useful. So instead of overloading the operator, we just replace it with
+//     the longhand x = x + y, and let the '+' operator get replaced by the method call.
+
+          function (e) {return e.xs && r.lvalue_assign[e.op] ? new r.syntax(null, "=", [e.xs[0], new r.syntax(null, e.op.substring(0, e.op.length - 1), e.xs)]) : e},
 
 //     Function notation.
 //     To alleviate some of the notational overhead of JavaScript's function definitions, I'm using the operator >$> for this purpose. > takes a low precedence, but it's a good idea to
