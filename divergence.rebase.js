@@ -186,18 +186,6 @@
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
 
-//     Cached functions.
-//     If you want to delay the computation of some expression and cache the result once it has been computed, then you can prefix that expression with $|. This produces a function, just like
-//     >$>, but the function's result will be computed only once. It can be reset by calling the .reset() method.
-
-          function (e) {var syn = function (op) {return new r.syntax (null, op)},
-                              f = e.op == '|' && e.xs && e.xs[0] == '$' && r.parse (
-                                    '(function (__rebase_value, __rebase_computed) {var __rebase_result = function () {' +
-                                      'return __rebase_computed ? __rebase_value : (__rebase_computed = true, __rebase_value = (__expression__))};' +
-                                                                                   '__rebase_result.reset = function () {__rebase_computed = false; return __rebase_result};' +
-                                                                                   'return __rebase_result}) (null, false)');
-                        return f ? (f.find ('__expression__')[0].replace (0, e.xs[1]), f) : e},
-
 //     Comments.
 //     Structural comments can be useful for removing chunks of code or for getting comments through SpiderMonkey's parse-deparse cycle (SpiderMonkey, and perhaps other JS interpreters, removes
 //     comments between evaling and serializing a function). Either way, the syntax is just like literal(), except that the result will be replaced with the value 'undefined' instead of evaluated
