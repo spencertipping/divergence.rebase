@@ -1,5 +1,7 @@
 Rebase is a Divergence module that provides operator overloading and syntactic macros in pure JavaScript. There are a few relatively unobtrusive limitations (see Caveats below), but it is able to run on its own source code successfully.
 
+I'm writing a guide that covers both Rebase and Divergence usage; see <http://github.com/spencertipping/divergence-guide>.
+
 # String interpolation
 
 Any string inside a rebased function (see below) can have expressions inside of it, and those expressions will be interpolated just like they are in Ruby. For example, this string:
