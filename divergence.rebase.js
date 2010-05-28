@@ -42,7 +42,7 @@
 
                 alias_in: '$0.init ($1, $0.map ($2, {|h, k, v| k.maps_to (h[v] || v.fn()) |}.fn($1)))'.fn(d),
 
-                    init: '$0.deparse($0.transform($0.parse($1.toString())))'.fn(r),
+                    init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
 
 //   Deparsing.
 //   This is certainly the easiest part. All we have to do is follow some straightforward rules about how operators and such get serialized. Luckily this is all encapsulated into the toString
@@ -73,13 +73,13 @@
 //   searching. I realize this is more elaborate than necessary given that the lexer is streaming (and thus would never need to recover old line lengths), but having to keep track of each newline
 //   that occurs while reading the input is probably more expensive than the overhead incurred by O(log n) jumps every so often.
 
-                   parse: function (s) {var mark = 0, i = 0, $_ = '', l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('), c = s.charAt.bind (s), openers = [],
+                   parse: function (s) {var mark = 0, s = s.toString(), i = 0, $_ = '', l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('),
+                                                      c = s.charAt.bind (s), openers = [],
                                              precedence = r.precedence, ident = r.ident, punct = r.punct,
                                             line_breaks = [0].concat (s.split('\n').map('.length')), lb = 1,
                                           located_token = function () {var jump = lb << 1, l = 0, r = new String (token);
                                                                        while (jump >>= 1) mark >= line_breaks[l + jump] && (l += jump);
                                                                        return r.line = l + 1, r.character = mark - line_breaks[l], r};
-
                           while ((lb <<= 1) < line_breaks.length);
                           for (var j = 0, lj = line_breaks.length, total = -1; j < lj; ++j) line_breaks[j] = total += line_breaks[j] + 1;
 
