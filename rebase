@@ -284,7 +284,7 @@ var d = (function () {
 
 __NIlSU01DmtXtQOiufJrifEZEqH1adWhSPDZLF5RACD0
 
-meta::code('main', <<'__Iw1DFXCb9lg+s2/RisPHPChnOlJVs2eepM1wXrow8vA');
+meta::code('main', <<'__k56TYzidJTVX63ITsHcNSwOasAqIoPz0nEDtbOmekuM');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -485,7 +485,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
     that build strings. Unfortunately we won't be able to distinguish between single and double-quoted strings because SpiderMonkey converts them all to double-quoted ones.
 
           function (e) {return e.charAt && '\'"'.indexOf(e.charAt(0)) > -1 && /#\{[^}]+\}/.test(e) ?
-                               '(' + e.replace (/#\{([^}]+)\}/g, function (_, code) {return e.charAt(0) + '+(' + r.translate(code) + ')+' + e.charAt(0)}) + ')' : e},
+                               '(' + e.replace (/#\{([^}]+)\}/g, function (_, code) {return e.charAt(0) + '+(' + r.translate(code.replace(/\\(.)/g, '$1')) + ')+' + e.charAt(0)}) + ')' : e},
 
     Operator overloading.
     Once we're done with all of the preprocessing we can actually replace the operators with method calls. I'm cheating just a bit here; normally you would encase the operation inside a [ node
@@ -519,9 +519,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__Iw1DFXCb9lg+s2/RisPHPChnOlJVs2eepM1wXrow8vA
+__k56TYzidJTVX63ITsHcNSwOasAqIoPz0nEDtbOmekuM
 
-meta::code('test', <<'__M6nRCqxRlZGJS2N5v+qBH0mhHHc45Fhf8/HXozPPWBk');
+meta::code('test', <<'__HrZA6wBcRrjN5lvZ19w1hPesA5M5ikLFvWHY4i0ipd4');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -707,7 +707,11 @@ Parse tests.
   d.rebase (function () {
     d.init ({}, {toString: _ >$> 'foo'});
   }) ();
-__M6nRCqxRlZGJS2N5v+qBH0mhHHc45Fhf8/HXozPPWBk
+
+  d.rebase (function () {
+    d.init ({}, {toString: _ >$> "foo#{3 + \"bar\"}"});
+  }) ();
+__HrZA6wBcRrjN5lvZ19w1hPesA5M5ikLFvWHY4i0ipd4
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.

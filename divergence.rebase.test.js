@@ -267,7 +267,7 @@ var d = (function () {
 //     that build strings. Unfortunately we won't be able to distinguish between single and double-quoted strings because SpiderMonkey converts them all to double-quoted ones.
 
           function (e) {return e.charAt && '\'"'.indexOf(e.charAt(0)) > -1 && /#\{[^}]+\}/.test(e) ?
-                               '(' + e.replace (/#\{([^}]+)\}/g, function (_, code) {return e.charAt(0) + '+(' + r.translate(code) + ')+' + e.charAt(0)}) + ')' : e},
+                               '(' + e.replace (/#\{([^}]+)\}/g, function (_, code) {return e.charAt(0) + '+(' + r.translate(code.replace(/\\(.)/g, '$1')) + ')+' + e.charAt(0)}) + ')' : e},
 
 //     Operator overloading.
 //     Once we're done with all of the preprocessing we can actually replace the operators with method calls. I'm cheating just a bit here; normally you would encase the operation inside a [ node
@@ -519,7 +519,7 @@ var d = (function () {
 //     that build strings. Unfortunately we won't be able to distinguish between single and double-quoted strings because SpiderMonkey converts them all to double-quoted ones.
 
           function (e) {return e.charAt && '\'"'.indexOf(e.charAt(0)) > -1 && /#\{[^}]+\}/.test(e) ?
-                               '(' + e.replace (/#\{([^}]+)\}/g, function (_, code) {return e.charAt(0) + '+(' + r.translate(code) + ')+' + e.charAt(0)}) + ')' : e},
+                               '(' + e.replace (/#\{([^}]+)\}/g, function (_, code) {return e.charAt(0) + '+(' + r.translate(code.replace(/\\(.)/g, '$1')) + ')+' + e.charAt(0)}) + ')' : e},
 
 //     Operator overloading.
 //     Once we're done with all of the preprocessing we can actually replace the operators with method calls. I'm cheating just a bit here; normally you would encase the operation inside a [ node
@@ -722,4 +722,8 @@ var d = (function () {
 
   d.rebase (function () {
     d.init ({}, {toString: _ >$> 'foo'});
+  }) ();
+
+  d.rebase (function () {
+    d.init ({}, {toString: _ >$> "foo#{3 + \"bar\"}"});
   }) ();
