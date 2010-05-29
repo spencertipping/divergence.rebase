@@ -719,3 +719,7 @@ var d = (function () {
     print ("Foo is #{3 + 5}");
     print ("Bar is #{(x >$> x + 1) (5)}");
   }) ();
+
+  d.rebase (function () {
+    d.init ({}, {toString: _ >$> 'foo'});
+  }) ();

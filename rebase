@@ -521,7 +521,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
 __Iw1DFXCb9lg+s2/RisPHPChnOlJVs2eepM1wXrow8vA
 
-meta::code('test', <<'__Q4hW3tQmCrzMhPMTWr6oNwombci1MsDYjgY/S07tJXw');
+meta::code('test', <<'__M6nRCqxRlZGJS2N5v+qBH0mhHHc45Fhf8/HXozPPWBk');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -703,7 +703,11 @@ Parse tests.
     print ("Foo is #{3 + 5}");
     print ("Bar is #{(x >$> x + 1) (5)}");
   }) ();
-__Q4hW3tQmCrzMhPMTWr6oNwombci1MsDYjgY/S07tJXw
+
+  d.rebase (function () {
+    d.init ({}, {toString: _ >$> 'foo'});
+  }) ();
+__M6nRCqxRlZGJS2N5v+qBH0mhHHc45Fhf8/HXozPPWBk
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.
