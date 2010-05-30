@@ -284,7 +284,7 @@ var d = (function () {
 
 __NIlSU01DmtXtQOiufJrifEZEqH1adWhSPDZLF5RACD0
 
-meta::code('main', <<'__k56TYzidJTVX63ITsHcNSwOasAqIoPz0nEDtbOmekuM');
+meta::code('main', <<'__Rgs07lY9mPCpAhqZ2Lkl4yiZNCxwuvpfm8BykGEkDV4');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -330,6 +330,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                 alias_in: '$0.init ($1, $0.map ($2, {|h, k, v| k.maps_to (h[v] || v.fn()) |}.fn($1)))'.fn(d),
 
                     init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
+                   local: '$0.transform($0.parse($1)).toString()'.fn(r),
 
   Deparsing.
   This is certainly the easiest part. All we have to do is follow some straightforward rules about how operators and such get serialized. Luckily this is all encapsulated into the toString
@@ -519,9 +520,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__k56TYzidJTVX63ITsHcNSwOasAqIoPz0nEDtbOmekuM
+__Rgs07lY9mPCpAhqZ2Lkl4yiZNCxwuvpfm8BykGEkDV4
 
-meta::code('test', <<'__HrZA6wBcRrjN5lvZ19w1hPesA5M5ikLFvWHY4i0ipd4');
+meta::code('test', <<'__3BUB4DyQxRulacan9YZ7+eOjtNoXoaa78/cMZlX2MY0');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -711,7 +712,13 @@ Parse tests.
   d.rebase (function () {
     d.init ({}, {toString: _ >$> "foo#{3 + \"bar\"}"});
   }) ();
-__HrZA6wBcRrjN5lvZ19w1hPesA5M5ikLFvWHY4i0ipd4
+
+  (function () {
+    var x = 5;
+    var f = eval (d.rebase.local (function () {return y >$> x + y})) ();
+    assert_equal (f (5), 10);
+  }) ();
+__3BUB4DyQxRulacan9YZ7+eOjtNoXoaa78/cMZlX2MY0
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.

@@ -112,6 +112,7 @@ var d = (function () {
                 alias_in: '$0.init ($1, $0.map ($2, {|h, k, v| k.maps_to (h[v] || v.fn()) |}.fn($1)))'.fn(d),
 
                     init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
+                   local: '$0.transform($0.parse($1)).toString()'.fn(r),
 
 //   Deparsing.
 //   This is certainly the easiest part. All we have to do is follow some straightforward rules about how operators and such get serialized. Luckily this is all encapsulated into the toString
@@ -364,6 +365,7 @@ var d = (function () {
                 alias_in: '$0.init ($1, $0.map ($2, {|h, k, v| k.maps_to (h[v] || v.fn()) |}.fn($1)))'.fn(d),
 
                     init: '$0.deparse($0.transform($0.parse($1)))'.fn(r),
+                   local: '$0.transform($0.parse($1)).toString()'.fn(r),
 
 //   Deparsing.
 //   This is certainly the easiest part. All we have to do is follow some straightforward rules about how operators and such get serialized. Luckily this is all encapsulated into the toString
@@ -726,4 +728,10 @@ var d = (function () {
 
   d.rebase (function () {
     d.init ({}, {toString: _ >$> "foo#{3 + \"bar\"}"});
+  }) ();
+
+  (function () {
+    var x = 5;
+    var f = eval (d.rebase.local (function () {return y >$> x + y})) ();
+    assert_equal (f (5), 10);
   }) ();
