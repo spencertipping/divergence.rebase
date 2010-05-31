@@ -115,6 +115,7 @@ Caveats
    includes bit-shifting, multiplying, dividing, etc. by a non-numeric literal. So for reliable operation, you should use variables instead of literals to avoid these issues.
 6. Nullary ``return`` doesn't get parsed correctly. You always need to return something, even if it's just ``undefined``.
 7. ``do {} while ()`` loops aren't handled. Handling these makes ``while`` context-sensitive, and Rebase's parser is purely precedence-oriented.
+8. Floating-point numbers with signed exponents are not parsed correctly. They will be parsed as numbers that end with ``e`` or ``E`` and that get added to or subtracted from other numbers.
 
 Rebase uses a series of functions installed on the prototypes of all standard types in order to mimic the default behavior. Sometimes these functions will not quite behave the same way due to
 autoboxing; if you find such a case, let me know.
