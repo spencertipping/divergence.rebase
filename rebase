@@ -531,7 +531,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
 __CqNPqy4lKTCvWDs5wD+eCxM6lb8lzyKFRUqJZgepC5Q
 
-meta::code('test', <<'__Eftm5bVkmStrhQ/p0ARt2RU0v42a+Y1xp6ZQTViYwDA');
+meta::code('test', <<'__Ar7cq3LrjsXAPGdKQvbvE5ejHMfMgFK1qcDDmrZxO1s');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -663,6 +663,12 @@ Parse tests.
   test ('{foo: "bar" ? "bif" : "baz", bar: "bif" || "baz"}');
   test ('[foo, bar, bif, baz]');
 
+  test ('new this.constructor ()');
+  test ('new this.foo.constructor ()');
+  test ('x >$> new this.constructor ()');
+  test ('x >$> new this.constructor (this)');
+  test ('x >$> new this.constructor (this, {x: x})');
+
 ! Number.prototype['<<'] = function (x) {return [this, x]};
 
   print (d.rebase (function (x) {return 3 << x}) (4));
@@ -736,7 +742,12 @@ Parse tests.
     assert_equal (5 |$> (x >$> x + 1), 6, 'preloading');
     assert_equal ((5, 6) |$> ((x, y) >$> x + y), 11, 'preloading multiple');
   }) ();
-__Eftm5bVkmStrhQ/p0ARt2RU0v42a+Y1xp6ZQTViYwDA
+
+  var foo = {bar: '@foo = 5'.fn()};
+  d.rebase (function () {
+    return new foo.bar ((5));
+  }) ();
+__Ar7cq3LrjsXAPGdKQvbvE5ejHMfMgFK1qcDDmrZxO1s
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.

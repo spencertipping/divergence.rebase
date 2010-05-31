@@ -689,6 +689,12 @@ var d = (function () {
   test ('{foo: "bar" ? "bif" : "baz", bar: "bif" || "baz"}');
   test ('[foo, bar, bif, baz]');
 
+  test ('new this.constructor ()');
+  test ('new this.foo.constructor ()');
+  test ('x >$> new this.constructor ()');
+  test ('x >$> new this.constructor (this)');
+  test ('x >$> new this.constructor (this, {x: x})');
+
   Number.prototype['<<'] = function (x) {return [this, x]};
 
   print (d.rebase (function (x) {return 3 << x}) (4));
@@ -761,4 +767,9 @@ var d = (function () {
   d.rebase (function () {
     assert_equal (5 |$> (x >$> x + 1), 6, 'preloading');
     assert_equal ((5, 6) |$> ((x, y) >$> x + y), 11, 'preloading multiple');
+  }) ();
+
+  var foo = {bar: '@foo = 5'.fn()};
+  d.rebase (function () {
+    return new foo.bar ((5));
   }) ();
