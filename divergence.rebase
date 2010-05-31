@@ -215,7 +215,7 @@ something most people will normally do. In the future there may be a locking mec
 
 __3uM+GRhsAnxE6BFehM2nkGju4J93JQjqONxKbpE0Cdg
 
-meta::code('divergence-lib', <<'__NIlSU01DmtXtQOiufJrifEZEqH1adWhSPDZLF5RACD0');
+meta::code('divergence-lib', <<'__Pyf+UZDBCMiwf4csrg+y61z4vM67rU25J2afFsy+ruU');
 Divergence core library | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -281,8 +281,7 @@ var d = (function () {
           cps:  function (c) {var cc = [this.fn(), [c = (c || d.id).fn().proxy()]]; while (cc[0] !== c) cc = cc[0].fn().apply (this, cc[1]); return c.apply (this, cc[1])}});
 
   return d}) ();
-
-__NIlSU01DmtXtQOiufJrifEZEqH1adWhSPDZLF5RACD0
+__Pyf+UZDBCMiwf4csrg+y61z4vM67rU25J2afFsy+ruU
 
 meta::code('main', <<'__iKLvuhGP+fVGDbBgwvx39uaPFG620YzJkcfaMGctVrg');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
@@ -776,9 +775,9 @@ meta::data('meta-associations', <<'__PRn3E4sEYBafwIXKC61VRabCemMeSeRn2H7z3wLgOo4
 ^vim_highlighter:: .vim
 __PRn3E4sEYBafwIXKC61VRabCemMeSeRn2H7z3wLgOo4
 
-meta::data('name', <<'__pm6wu5BHci+ktlZkmXzt48+j8ps+NIXw7Y3KkcSL9Mk');
-rebase
-__pm6wu5BHci+ktlZkmXzt48+j8ps+NIXw7Y3KkcSL9Mk
+meta::data('name', <<'__ki2kziC5EFtcA+Z0nE7S4ieTzrnNIo4cFV4YKMOTyEA');
+divergence.rebase
+__ki2kziC5EFtcA+Z0nE7S4ieTzrnNIo4cFV4YKMOTyEA
 
 meta::function('add-to', <<'__KBgra0vG1gIsUI8CCVf4ZEdCatZDCdVO6HuUx+jOJ9Q');
 my ($filename) = @_;
@@ -819,11 +818,10 @@ meta::function('code', <<'__NBNecoJ9JVwyGbA+8LrNYjQKQyQOxdFAkjgZ4ueT5QA');
 join "\n\n", map preprocess(retrieve("code::$_")), @_;
 __NBNecoJ9JVwyGbA+8LrNYjQKQyQOxdFAkjgZ4ueT5QA
 
-meta::function('compile', <<'__h/k5g5GPz4x8QRQ+sQhWxNPFrXG4WSmnh5mAAsT32AI');
-file::write('divergence.js',             unlit('divergence-lib'));
-file::write('divergence.rebase.js',      unlit('main'));
-file::write('divergence.rebase.test.js', unlit('test'));
-__h/k5g5GPz4x8QRQ+sQhWxNPFrXG4WSmnh5mAAsT32AI
+meta::function('compile', <<'__fS4SFKwDwlQRAPgdkfOItg4KJJn5c4BwZzQkiAe8Kvc');
+my $name = name();
+file::write("$name.js", unlit('main'));
+__fS4SFKwDwlQRAPgdkfOItg4KJJn5c4BwZzQkiAe8Kvc
 
 meta::function('cp', <<'__yn1SQkcEk6o+gnuCy3QGVFtQb2piaCoUdJPGUkLjpD4');
 my ($from, $to) = @_;
@@ -842,6 +840,10 @@ if ($value) {
   edit ($name);
 }
 __YDNTuzkJSNUIk4tbdwxep6/rT8uGnceIj7rljM9gusc
+
+meta::function('deps', <<'__H7NNNb3N0fcC8pi11kmu/0Fel01bMEEiaaXkmLaMkMU');
+associate("code::${$_}[0]-lib", join('', qx/${$_}[0] cat ${$_}[1]/)) for map [split /\s+/], grep length && ! /^#/, split /\n/, dependencies();
+__H7NNNb3N0fcC8pi11kmu/0Fel01bMEEiaaXkmLaMkMU
 
 meta::function('edit', <<'__rAkSOSll0evjt/D0qmnz2M++ACqz6cPtN8TLTHdQUJE');
 my ($name, %options) = @_;
@@ -1343,6 +1345,10 @@ sub message {
   print "${padding}[\033[${color}m$prefix\033[0;0m] $message\n";
 }
 __bakqo5o+Exi5Kw4onujvi9Pu3zR9lQA8cPKfYj6L74Q
+
+meta::list('dependencies', <<'__s7HS3H3uTlFa0LKMNx5GjdNFFjBi7jy5bTbV2TScBGA');
+./divergence main
+__s7HS3H3uTlFa0LKMNx5GjdNFFjBi7jy5bTbV2TScBGA
 
 meta::sh('js', <<'__qGEHHjKcAKXQz3fhJNhOtnWH3pjzV5E13Ndz4KxZrvs');
 js __code__
