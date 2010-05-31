@@ -31,7 +31,7 @@
                    unary: set(qw('u++ u-- ++ -- u+ u- u! u~ new typeof var case try finally throw return case else delete void import export ( [ { ?:')),
                syntactic: set(qw('case var if while for do switch return throw delete export import try catch finally void with else function new typeof in instanceof')),
                statement: set(qw('case var if while for do switch return throw delete export import try catch finally void with else')),
-               connected: set(qw('else catch finally')),
+               connected: set(qw('else catch finally')),                                                                       digit: set('0123456789.'.split('')),
                    ident: set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_'.split ('')),                  punct: set('+-*/%&|^!~=<>?:;.,'.split ('')),
                    right: set(qw('= += -= *= /= %= &= ^= |= <<= >>= >>>= u~ u! new typeof u+ u- u++ u-- ++ --')),            openers: {'(':')', '[':']', '{':'}', '?':':'},
      implicit_assignment: set(qw('++ -- u++ u--')),                                                                       sandwiches: set(qw('$ $$ $$$ _ __ ___ _$ _$$ __$')),
@@ -76,7 +76,7 @@
 
                    parse: function (s) {var mark = 0, s = s.toString(), i = 0, $_ = '', l = s.length, token = '', expect_re = true, escaped = false, t = new r.syntax(null, '('),
                                                       c = s.charAt.bind (s), openers = [],
-                                             precedence = r.precedence, ident = r.ident, punct = r.punct,
+                                             precedence = r.precedence, ident = r.ident, punct = r.punct, digit = r.digit,
                                             line_breaks = [0].concat (s.split('\n').map('.length')), lb = 1,
                                           located_token = function () {var jump = lb << 1, l = 0, r = new String (token);
                                                                        while (jump >>= 1) mark >= line_breaks[l + jump] && (l += jump);
@@ -87,17 +87,17 @@
                           while ((mark = i) < l && ($_ = c(i))) {
           escaped = token = '';
 
-               if                                (' \n\r\t'.indexOf ($_) > -1)                                                       {++i; continue}
-          else if                               ('([{?:}])'.indexOf ($_) > -1)                                                        expect_re = '([{:?'.indexOf ($_) > -1, ++i;
-          else if                 ($_ === '/' && c(i + 1) === '*' && (i += 2)) {while (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);  continue}
-          else if                             ($_ === '/' && c(i + 1) === '/') {while       (($_ = c(++i)) !== '\n' && $_ !== '\r');  continue}
-          else if ($_ === '/' && expect_re && ! (expect_re = ! (token = '/'))) {while            (($_ = c(++i)) !== '/' || escaped)   escaped = ! escaped && $_ === '\\';
-                                                                                while                               (ident[c(++i)]);}
-          else if              ($_ === '"' && ! (expect_re = ! (token = '"')))  while   (($_ = c(++i)) !== '"' || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
-          else if              ($_ === "'" && ! (expect_re = ! (token = "'")))  while   (($_ = c(++i)) !== "'" || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
-          else if                    (expect_re && punct[$_] && (token = 'u'))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
-          else if                            (punct[$_] && (expect_re = true))  while  (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
-          else                                                                 {while                               (ident[c(++i)]);  expect_re = precedence.hasOwnProperty (token = s.substring(mark, i))}
+               if                                (' \n\r\t'.indexOf ($_) > -1)                                                             {++i; continue}
+          else if                               ('([{?:}])'.indexOf ($_) > -1)                                                              expect_re = '([{:?'.indexOf ($_) > -1, ++i;
+          else if                 ($_ === '/' && c(i + 1) === '*' && (i += 2)) {while       (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);  continue}
+          else if                             ($_ === '/' && c(i + 1) === '/') {while             (($_ = c(++i)) !== '\n' && $_ !== '\r');  continue}
+          else if ($_ === '/' && expect_re && ! (expect_re = ! (token = '/'))) {while                  (($_ = c(++i)) !== '/' || escaped)   escaped = ! escaped && $_ === '\\';
+                                                                                while                                     (ident[c(++i)]);}
+          else if              ($_ === '"' && ! (expect_re = ! (token = '"')))  while         (($_ = c(++i)) !== '"' || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
+          else if              ($_ === "'" && ! (expect_re = ! (token = "'")))  while         (($_ = c(++i)) !== "'" || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
+          else if                    (expect_re && punct[$_] && (token = 'u'))  while        (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
+          else if                            (punct[$_] && (expect_re = true))  while        (punct[$_ = c(i)] && precedence[token + $_])   token += $_, ++i;
+          else                                                                 {while (ident[$_ = c(++i)] || digit[c(mark)] && digit[$_]);  expect_re = precedence.hasOwnProperty (token = s.substring (mark, i))}
 
           expect_re && token.charAt(0) === 'u' || (token = s.substring (mark, i));
           token in {} && (token = '@' + token);
