@@ -256,6 +256,15 @@ var d = (function () {
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
 
+//     Function preloading.
+//     Since Rebase doesn't provide an expression-mode variable binding syntax (this would be difficult), binding variables becomes a matter of using functions. This has the advantage that you
+//     end up with a proper lexical scope too.
+
+//       | x |$> f === f(x)
+//       | (x, y) |$> f === f (x, y)
+
+          function (e) {return e.op == '|$>' ? new r.syntax(e.parent, '(!').with_node (e.xs[1]).with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax(null, '(').with_node (e.xs[0])) : e},
+
 //     Comments.
 //     Structural comments can be useful for removing chunks of code or for getting comments through SpiderMonkey's parse-deparse cycle (SpiderMonkey, and perhaps other JS interpreters, removes
 //     comments between evaling and serializing a function). Either way, the syntax is just like literal(), except that the result will be replaced with the value 'undefined' instead of evaluated
@@ -509,6 +518,15 @@ var d = (function () {
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
 
+//     Function preloading.
+//     Since Rebase doesn't provide an expression-mode variable binding syntax (this would be difficult), binding variables becomes a matter of using functions. This has the advantage that you
+//     end up with a proper lexical scope too.
+
+//       | x |$> f === f(x)
+//       | (x, y) |$> f === f (x, y)
+
+          function (e) {return e.op == '|$>' ? new r.syntax(e.parent, '(!').with_node (e.xs[1]).with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax(null, '(').with_node (e.xs[0])) : e},
+
 //     Comments.
 //     Structural comments can be useful for removing chunks of code or for getting comments through SpiderMonkey's parse-deparse cycle (SpiderMonkey, and perhaps other JS interpreters, removes
 //     comments between evaling and serializing a function). Either way, the syntax is just like literal(), except that the result will be replaced with the value 'undefined' instead of evaluated
@@ -738,4 +756,9 @@ var d = (function () {
 
   d.rebase (function () {
     return 1.0 + 2.0;
+  }) ();
+
+  d.rebase (function () {
+    assert_equal (5 |$> (x >$> x + 1), 6, 'preloading');
+    assert_equal ((5, 6) |$> ((x, y) >$> x + y), 11, 'preloading multiple');
   }) ();

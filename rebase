@@ -284,7 +284,7 @@ var d = (function () {
 
 __NIlSU01DmtXtQOiufJrifEZEqH1adWhSPDZLF5RACD0
 
-meta::code('main', <<'__Vxc14Q/LSVrYQVdqQ02oS+P7vQwUAwObl5G8CRDPFd8');
+meta::code('main', <<'__CqNPqy4lKTCvWDs5wD+eCxM6lb8lzyKFRUqJZgepC5Q');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -474,6 +474,15 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
           function (e) {return e.op == '>$>' ? new r.syntax(e.parent, 'function').with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax (null, '(', [e.xs[0]])).
                                                                                   with_node (new r.syntax (null, '{').with_node (new r.syntax (null, 'return').with_node (e.xs[1]))) : e},
 
+    Function preloading.
+    Since Rebase doesn't provide an expression-mode variable binding syntax (this would be difficult), binding variables becomes a matter of using functions. This has the advantage that you
+    end up with a proper lexical scope too.
+
+      | x |$> f === f(x)
+      | (x, y) |$> f === f (x, y)
+
+          function (e) {return e.op == '|$>' ? new r.syntax(e.parent, '(!').with_node (e.xs[1]).with_node (e.xs[0].op == '(' ? e.xs[0] : new r.syntax(null, '(').with_node (e.xs[0])) : e},
+
     Comments.
     Structural comments can be useful for removing chunks of code or for getting comments through SpiderMonkey's parse-deparse cycle (SpiderMonkey, and perhaps other JS interpreters, removes
     comments between evaling and serializing a function). Either way, the syntax is just like literal(), except that the result will be replaced with the value 'undefined' instead of evaluated
@@ -520,9 +529,9 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__Vxc14Q/LSVrYQVdqQ02oS+P7vQwUAwObl5G8CRDPFd8
+__CqNPqy4lKTCvWDs5wD+eCxM6lb8lzyKFRUqJZgepC5Q
 
-meta::code('test', <<'__/ObzkyhAZP9uotVJpeXZ+A+hjqfxrgM7d8ne+l3BKgc');
+meta::code('test', <<'__Eftm5bVkmStrhQ/p0ARt2RU0v42a+Y1xp6ZQTViYwDA');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -722,7 +731,12 @@ Parse tests.
   d.rebase (function () {
     return 1.0 + 2.0;
   }) ();
-__/ObzkyhAZP9uotVJpeXZ+A+hjqfxrgM7d8ne+l3BKgc
+
+  d.rebase (function () {
+    assert_equal (5 |$> (x >$> x + 1), 6, 'preloading');
+    assert_equal ((5, 6) |$> ((x, y) >$> x + y), 11, 'preloading multiple');
+  }) ();
+__Eftm5bVkmStrhQ/p0ARt2RU0v42a+Y1xp6ZQTViYwDA
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.
