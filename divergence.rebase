@@ -50,16 +50,17 @@ meta::define_form 'code', sub {
 };
 __VqQsjlm+HucvTRVlIGc8oi++EzzNq+rwy5bhKzunE8A
 
-meta::meta('datatypes::data', <<'__j7lFraXGRfKk8ymj2mDJhNbCQMk9FSciN1hdDhzM99U');
+meta::meta('datatypes::data', <<'__s2euAFkA/SbXvMzOkLZXrqX3TdtBzEODSWBAt7wXECA');
 meta::define_form 'data', sub {
   my ($name, undef) = @_;
   $externalized_functions{$name} = "data::$name";
   *{$name} = sub {
     associate("data::$name", $_[1] || join('', <STDIN>)) if @_ > 0 && $_[0] eq '=';
+    edit("data::$name")                                  if $_[0] eq 'edit';
     retrieve("data::$name");
   };
 };
-__j7lFraXGRfKk8ymj2mDJhNbCQMk9FSciN1hdDhzM99U
+__s2euAFkA/SbXvMzOkLZXrqX3TdtBzEODSWBAt7wXECA
 
 meta::meta('datatypes::function', <<'__XSIHGGHv0Sh0JBj9KIrP/OzuuB2epyvn9pgtZyWE6t0');
 meta::define_form 'function', sub {
@@ -111,6 +112,19 @@ meta::define_form '_list_type', sub {
   };
 };
 __OKczvJ+6wi8VPNFcZ9ohlXjw+ychodWCfcELdli9p+w
+
+meta::meta('datatypes::message-color', <<'__nWmJgsP4S3LFdMPQnL+foYc9c5fgqIlEm6RppolzoX0');
+meta::define_form 'message_color', sub {
+  my ($name, $value) = @_;
+  $externalized_functions{$name} = "message_color::$name";
+  terminal::color($name, $value);
+  *{$name} = sub {
+    associate("message_color::$name", $_[1] || join('', <STDIN>)) if @_ > 0 && $_[0] eq '=';
+    edit("message_color::$name")                                  if $_[0] eq 'edit';
+    retrieve("message_color::$name");
+  };
+};
+__nWmJgsP4S3LFdMPQnL+foYc9c5fgqIlEm6RppolzoX0
 
 meta::meta('datatypes::note', <<'__TGOjJwmj+QJp1giUQqg2bEaQe8RvqnrFEqyZhIpSC34');
 meta::define_form 'note', sub {
@@ -841,9 +855,16 @@ if ($value) {
 }
 __YDNTuzkJSNUIk4tbdwxep6/rT8uGnceIj7rljM9gusc
 
-meta::function('deps', <<'__H7NNNb3N0fcC8pi11kmu/0Fel01bMEEiaaXkmLaMkMU');
-associate("code::${$_}[0]-lib", join('', qx/${$_}[0] cat ${$_}[1]/)) for map [split /\s+/], grep length && ! /^#/, split /\n/, dependencies();
-__H7NNNb3N0fcC8pi11kmu/0Fel01bMEEiaaXkmLaMkMU
+meta::function('deps', <<'__SZ4U6b8mZigWcPg3LLsBHJGEgtUKpWe3Pvy87e88W2E');
+&{'push-state'}();
+terminal::message('info', 'The old state of this object is being preserved. Run pop-state to revert after this import is complete.');
+for (grep length && ! /^#/, split /\n/, dependencies()) {
+  my ($name, $attribute) = split;
+  (my $processed_name = $name) =~ s/^\.\///;
+  terminal::message('status', "Importing $attribute from $name as $processed_name-lib");
+  associate("code::$processed_name-lib", join('', qx/$name cat code::$attribute/));
+}
+__SZ4U6b8mZigWcPg3LLsBHJGEgtUKpWe3Pvy87e88W2E
 
 meta::function('edit', <<'__rAkSOSll0evjt/D0qmnz2M++ACqz6cPtN8TLTHdQUJE');
 my ($name, %options) = @_;
@@ -1182,12 +1203,12 @@ reload();
 terminal::message('info', "Imported from $_[0]. Run pop-state to undo this change.");
 __jJ2tfSk/Quz8/1PiYxIwQjBRt/hYg51iJhAdxcdaHkM
 
-meta::function('usage', <<'__oHVev4RtZlF/82SSE87y4Bf7ran2afn/HDtukOQBf9I');
-<<"EOD" . join '  ', split /\n/, ls ();
+meta::function('usage', <<'__7ReV+2xSkKaDnXAdgszTEQyeJETOBChyE/THZJIifMs');
+<<"EOD" . ls ();
 Usage: $0 [options] action [arguments]
-Defined actions:
+Defined actions (and the attribute that defines them):
 EOD
-__oHVev4RtZlF/82SSE87y4Bf7ran2afn/HDtukOQBf9I
+__7ReV+2xSkKaDnXAdgszTEQyeJETOBChyE/THZJIifMs
 
 meta::function('vim', <<'__1EcCMR8Tks8HBoOg+zAKJ4LlrRIY8nvLs4M1VTr2Zec');
 # Installs VIM highlighters.
@@ -1321,30 +1342,38 @@ $noise =~ s/\//-/g;
 "$0.$noise";
 __zNSrihAkMKJG5spRYgcFdoNArFKig1u12gIp6gJ8pZw
 
-meta::library('terminal', <<'__bakqo5o+Exi5Kw4onujvi9Pu3zR9lQA8cPKfYj6L74Q');
+meta::library('terminal', <<'__pvD00lNNeQAXRGZFRNjR0bf9b/Z/rZgMgNL5zN4ZsQA');
 # Functions for nice-looking terminal output.
 
 package terminal;
 
-use constant black  => "0;0";
-use constant red    => "1;31";
-use constant yellow => "1;33";
-use constant green  => "1;32";
-use constant blue   => "1;34";
-use constant purple => "1;35";
-use constant cyan   => "1;36";
-
-my %default_colors = (info => green);
+my %color_conversions = (black  => "0;0",
+                         red    => "1;31",
+                         yellow => "1;33",
+                         green  => "1;32",
+                         blue   => "1;34",
+                         purple => "1;35",
+                         cyan   => "1;36");
 my $longest_prefix = 0;
-$longest_prefix = $longest_prefix < $_ ? $_ : $longest_prefix for map length, keys %default_colors;
+my %default_colors = ();
+
+sub color {
+  $default_colors{$_[0]} = $_[1];
+  $longest_prefix = $longest_prefix < length($_[0]) ? length($_[0]) : $longest_prefix;
+}
+
+color    'info',  'green';
+color  'status',  'green';
+color   'error',    'red';
+color 'warning', 'yellow';
 
 sub message {
   my ($prefix, $message) = @_;
-  my $color = $default_colors{$prefix};
+  my $color = $color_conversions{$default_colors{$prefix}};
   my $padding = ' ' x ($longest_prefix - length $prefix);
-  print "${padding}[\033[${color}m$prefix\033[0;0m] $message\n";
+  print STDERR "${padding}[\033[${color}m$prefix\033[0;0m] $message\n";
 }
-__bakqo5o+Exi5Kw4onujvi9Pu3zR9lQA8cPKfYj6L74Q
+__pvD00lNNeQAXRGZFRNjR0bf9b/Z/rZgMgNL5zN4ZsQA
 
 meta::list('dependencies', <<'__s7HS3H3uTlFa0LKMNx5GjdNFFjBi7jy5bTbV2TScBGA');
 ./divergence main
