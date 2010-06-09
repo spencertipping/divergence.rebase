@@ -1,7 +1,9 @@
 // Divergence core library | Spencer Tipping <spencer@spencertipping.com>
 // Licensed under the terms of the MIT source code license
 
-var d = (function () {
+// See the Divergence guide (http://github.com/spencertipping/divergence-guide) for documentation about the functions here.
+
+var d = (function (eval_in_global_scope) {
   var c = {}, d = function () {return d[d.default_action].apply (this, arguments)}, gensym_count = 0;
   d.init = function (o) {for (var i = 1, l = arguments.length, $_ = null; $_ = arguments[i], i < l; ++i) if ($_.call && $_.call.apply) $_.call (o);
                                                                                                          else                          for (var k in $_) $_.hasOwnProperty (k) && (o[k] = $_[k]); return o};
@@ -19,7 +21,8 @@ var d = (function () {
   d (String.prototype, {maps_to: function (v) {var result = {}; result[this] = v; return result},
                          lookup: function  () {return '$0.split(".").fold("$0[$1]", $1)'.fn(this)},
                            fail: function  () {throw new Error (this.toString())},
-                             fn: function  () {var s = this.toString(), f = c[s] || (c[s] = eval ('(function(){return ' + d.macro_expand(s) + '})')); return f.fn.apply (f, arguments)}});
+                             fn: function  () {var s = this.toString(), f = c[s] || (c[s] = eval_in_global_scope ('(function(){return ' + d.macro_expand(s) + '})'));
+                                               return f.fn.apply (f, arguments)}});
 
   d (RegExp.prototype, {maps_to: function (f) {var s = this; return function (x) {return x.replace (s, f)}},
                           macro: function (f) {return d.macro (this, f)},
@@ -58,6 +61,7 @@ var d = (function () {
          type:  function  () {var f = function () {}, c = this.fn(); f = f.ctor.apply (f, arguments); return function () {return c.apply (new f(), arguments)}},
          ctor:  function  () {var g = function () {f.apply (this, arguments)}, f = g.original = this.fn(); d.init.apply (this, [g.prototype].concat (d.arr (arguments))); return g},
          tail: '[$_.fn(), arguments]'.fn(),
-          cps:  function (c) {var cc = [this.fn(), [c = (c || d.id).fn().proxy()]]; while (cc[0] !== c) cc = cc[0].fn().apply (this, cc[1]); return c.apply (this, cc[1])}});
+          cps:  function (c) {var cc = [this.fn(), [c = (c || d.id).fn().proxy()]]; while (cc[0] !== c) cc = cc[0].fn().apply (this, cc[1]); return c.apply (this, cc[1])},
+          fix:  function  () {var f = this.fn(); return f (function () {return f.fix().apply (this, arguments)})}});
 
-  return d}) ();
+  return d}) (function () {return eval (arguments[0])});
