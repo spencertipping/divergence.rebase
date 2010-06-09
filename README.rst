@@ -124,7 +124,7 @@ Syntactic macros
 ================
 
 Rebase also lets you transform the syntax tree in arbitrary ways. Any function in the ``d.rebase.macros`` array will be run on each syntax node. This lets you do a number of useful things,
-including inserting debugging information, tracing things (see the `Divergence debugging module <http://github.com/spencertipping/divergence-debug>`_), or coming up with new meanings for
+including inserting debugging information, tracing things (see the `Divergence debugging module <http://github.com/spencertipping/divergence.debug>`_), or coming up with new meanings for
 existing operators.
 
 The value passed into a macro will have one of three types:
