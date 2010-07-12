@@ -549,7 +549,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
 __YeuBaWOGJprzCX+UO1Emd/Jfzboraun6cWuEk6ASVEU
 
-meta::code('test', <<'__Ar7cq3LrjsXAPGdKQvbvE5ejHMfMgFK1qcDDmrZxO1s');
+meta::code('test', <<'__7zggPe1Em8+6TglEmtqm72oW5SXEX/kfXtzU0huGk/E');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -765,7 +765,15 @@ Parse tests.
   d.rebase (function () {
     return new foo.bar ((5));
   }) ();
-__Ar7cq3LrjsXAPGdKQvbvE5ejHMfMgFK1qcDDmrZxO1s
+
+  d.rebase.enable_inline_macro();
+
+  print ('About to map $0 across [1, 2, 3]');
+  [1, 2, 3].map ("$0");
+
+  print ('About to map $0 + 1 across [1, 2, 3]');
+  [1, 2, 3].map ("$0 + 1");
+__7zggPe1Em8+6TglEmtqm72oW5SXEX/kfXtzU0huGk/E
 
 meta::code('test-utils', <<'__GQhahA9jt1+B2X1vxas2WOEFnHdUbgiwpAonT2s4VPs');
 Unit test utilities.
@@ -835,10 +843,11 @@ meta::function('code', <<'__NBNecoJ9JVwyGbA+8LrNYjQKQyQOxdFAkjgZ4ueT5QA');
 join "\n\n", map preprocess(retrieve("code::$_")), @_;
 __NBNecoJ9JVwyGbA+8LrNYjQKQyQOxdFAkjgZ4ueT5QA
 
-meta::function('compile', <<'__fS4SFKwDwlQRAPgdkfOItg4KJJn5c4BwZzQkiAe8Kvc');
+meta::function('compile', <<'__k5Y771SMzgJjhAbjl1wvtB1mbjr4jA/b/iQWC8DdHX4');
 my $name = name();
 file::write("$name.js", unlit('main'));
-__fS4SFKwDwlQRAPgdkfOItg4KJJn5c4BwZzQkiAe8Kvc
+file::write("$name.test.js", unlit("test"));
+__k5Y771SMzgJjhAbjl1wvtB1mbjr4jA/b/iQWC8DdHX4
 
 meta::function('cp', <<'__yn1SQkcEk6o+gnuCy3QGVFtQb2piaCoUdJPGUkLjpD4');
 my ($from, $to) = @_;
