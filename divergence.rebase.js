@@ -91,7 +91,7 @@
                if                                (' \n\r\t'.indexOf ($_) > -1)                                                             {++i; continue}
           else if                               ('([{?:}])'.indexOf ($_) > -1)                                                              expect_re = '([{:?'.indexOf ($_) > -1, ++i;
           else if                 ($_ === '/' && c(i + 1) === '*' && (i += 2)) {while       (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);  continue}
-          else if                             ($_ === '/' && c(i + 1) === '/') {while             (($_ = c(++i)) !== '\n' && $_ !== '\r');  continue}
+          else if                             ($_ === '/' && c(i + 1) === '/') {while    (++i < l && ($_ = c(i)) !== '\n' && $_ !== '\r');  continue}
           else if ($_ === '/' && expect_re && ! (expect_re = ! (token = '/'))) {while                  (($_ = c(++i)) !== '/' || escaped)   escaped = ! escaped && $_ === '\\';
                                                                                 while                                     (ident[c(++i)]);}
           else if              ($_ === '"' && ! (expect_re = ! (token = '"')))  while         (($_ = c(++i)) !== '"' || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';

@@ -300,7 +300,7 @@ var d = (function (eval_in_global_scope) {
 
 __6vw8rCTWCJNwy0HxP0eeTUMJEDOH1t29sdXlTEtBBbg
 
-meta::code('main', <<'__YeuBaWOGJprzCX+UO1Emd/Jfzboraun6cWuEk6ASVEU');
+meta::code('main', <<'__tbfC/8jAR0leluxBcRwOu6lNEcnVmLSHIvdvuG/u+bA');
 Divergence Rebase module | Spencer Tipping <spencer@spencertipping.com>
 Licensed under the terms of the MIT source code license
 
@@ -394,7 +394,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
                if                                (' \n\r\t'.indexOf ($_) > -1)                                                             {++i; continue}
           else if                               ('([{?:}])'.indexOf ($_) > -1)                                                              expect_re = '([{:?'.indexOf ($_) > -1, ++i;
           else if                 ($_ === '/' && c(i + 1) === '*' && (i += 2)) {while       (c(++i) !== '/' || c(i - 1) !== '*' || ! ++i);  continue}
-          else if                             ($_ === '/' && c(i + 1) === '/') {while             (($_ = c(++i)) !== '\n' && $_ !== '\r');  continue}
+          else if                             ($_ === '/' && c(i + 1) === '/') {while    (++i < l && ($_ = c(i)) !== '\n' && $_ !== '\r');  continue}
           else if ($_ === '/' && expect_re && ! (expect_re = ! (token = '/'))) {while                  (($_ = c(++i)) !== '/' || escaped)   escaped = ! escaped && $_ === '\\';
                                                                                 while                                     (ident[c(++i)]);}
           else if              ($_ === '"' && ! (expect_re = ! (token = '"')))  while         (($_ = c(++i)) !== '"' || escaped || ! ++i)   escaped = ! escaped && $_ === '\\';
@@ -547,7 +547,7 @@ as a key there (e.g. 'foo'), then it will be sandwiched between binary operators
   enable it like this:
 
   r.enable_inline_macro = (function (enabled) {return function () {enabled || (enabled = !! d.inline_macros.push ('$0.toString()'.compose (r.transform).compose (r.parse)))}}) (false)}) ();
-__YeuBaWOGJprzCX+UO1Emd/Jfzboraun6cWuEk6ASVEU
+__tbfC/8jAR0leluxBcRwOu6lNEcnVmLSHIvdvuG/u+bA
 
 meta::code('test', <<'__7zggPe1Em8+6TglEmtqm72oW5SXEX/kfXtzU0huGk/E');
 Divergence Rebase unit tests | Spencer Tipping <spencer@spencertipping.com>
