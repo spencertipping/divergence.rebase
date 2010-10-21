@@ -7,6 +7,9 @@ to run on its own source code successfully.
 
 I'm writing a guide that covers both Rebase and Divergence usage; see the `Divergence guide <http://github.com/spencertipping/divergence-guide>`_.
 
+Note that this project is no longer under much maintenance and has been superseded by `Caterwaul <http://github.com/spencertipping/caterwaul>`_. Caterwaul addresses a number of deficiencies in
+Rebase, including implementing all of JavaScript syntax and working on IE6. It also provides a much more sophisticated macro system.
+
 String interpolation
 ====================
 
